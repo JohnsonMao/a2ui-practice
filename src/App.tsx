@@ -18,7 +18,14 @@ function App() {
 
   const handleNewData = useCallback(
     (messages: unknown[]) => {
-      processor.processMessages(messages as Parameters<typeof processor.processMessages>[0])
+      const filtered = (messages as Record<string, unknown>[]).filter((msg) => {
+        if (msg && typeof msg === 'object' && 'createSurface' in msg) {
+          const surfaceId = (msg.createSurface as Record<string, unknown>)?.surfaceId as string
+          return !processor.model.getSurface(surfaceId)
+        }
+        return true
+      })
+      processor.processMessages(filtered as unknown as Parameters<typeof processor.processMessages>[0])
     },
     [processor],
   )
