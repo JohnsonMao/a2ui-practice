@@ -1,73 +1,87 @@
-# React + TypeScript + Vite
+# a2ui-practice
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A static React app powered by [`@a2ui/react`](https://www.npmjs.com/package/@a2ui/react) that renders UI driven by an AI Agent writing a local JSON file.
 
-Currently, two official plugins are available:
+## How It Works
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+[AI Agent] → writes dist/ui.json → [static file server] → [React App polls every 2s] → renders UI
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The React app polls `ui.json` every 2 seconds. When the content changes, it feeds the A2UI protocol messages to `MessageProcessor`, which updates the rendered surface automatically.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Running
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Build the static files
+pnpm build
+
+# 3. Serve the dist directory
+npx serve dist
 ```
+
+Open `http://localhost:3000` in your browser.
+
+## AI Agent Integration
+
+Your AI Agent should write (overwrite) `dist/ui.json` with an array of A2UI v0.9 protocol messages. The React app will pick up the changes within 2 seconds.
+
+### Message Format
+
+```json
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "main",
+      "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "main",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "properties": {
+            "children": [{ "id": "greeting" }]
+          }
+        },
+        {
+          "id": "greeting",
+          "component": "Text",
+          "properties": {
+            "text": "Hello from the Agent!",
+            "variant": "headline"
+          }
+        }
+      ]
+    }
+  }
+]
+```
+
+### Available Components (basicCatalog)
+
+- **Layout**: `Row`, `Column`, `List`, `Card`, `Tabs`, `Modal`, `Divider`
+- **Content**: `Text`, `Image`, `Icon`
+- **Input**: `Button`, `TextField`, `CheckBox`, `ChoicePicker`, `Slider`, `DateTimeInput`
+
+### Update Strategy
+
+Each time the Agent updates the UI, overwrite `dist/ui.json` with the **full** message array (including `createSurface`). The app compares the entire file content and re-processes all messages only when the content changes.
+
+## Development
+
+```bash
+pnpm dev      # start dev server
+pnpm test     # run tests in watch mode
+pnpm test:run # run tests once
+pnpm build    # build for production
+```
+

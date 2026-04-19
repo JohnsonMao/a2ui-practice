@@ -1,0 +1,36 @@
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "main",
+      "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "main",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            { "id": "title" },
+            { "id": "body" }
+          ]
+        },
+        {
+          "id": "title",
+          "component": "Text",
+          "text": "Hello from AI Agent",
+          "variant": "h2"
+        },
+        {
+          "id": "body",
+          "component": "Text",
+          "text": "Update this file to change the UI. The React app polls every 2 seconds."
+        }
+      ]
+    }
+  }
+]
