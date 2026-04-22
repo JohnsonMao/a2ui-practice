@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { MessageProcessor } from '@a2ui/web_core/v0_9'
-import { A2uiSurface, basicCatalog } from '@a2ui/react/v0_9'
+import { A2uiSurface } from '@a2ui/react/v0_9'
 import type { SurfaceModel } from '@a2ui/web_core/v0_9'
 import type { ReactComponentImplementation } from '@a2ui/react/v0_9'
 import { useJsonPolling } from './hooks/useJsonPolling'
+import { customCatalog } from './catalog'
 
 function App() {
-  const [processor] = useState(() => new MessageProcessor([basicCatalog]))
+  const [processor] = useState(() => new MessageProcessor([customCatalog]))
   const [surface, setSurface] = useState<SurfaceModel<ReactComponentImplementation> | null>(null)
 
   useEffect(() => {

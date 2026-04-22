@@ -3,9 +3,12 @@ import { render, screen } from '@testing-library/react'
 import { MessageProcessor } from '@a2ui/web_core/v0_9'
 
 vi.mock('@a2ui/react/v0_9', () => ({
-  basicCatalog: { id: 'mock-catalog' },
   A2uiSurface: ({ surface }: { surface: unknown }) =>
     <div data-testid="a2ui-surface" data-surface={String(surface)} />,
+}))
+
+vi.mock('./catalog', () => ({
+  customCatalog: { id: 'mock-custom-catalog' },
 }))
 
 vi.mock('./hooks/useJsonPolling', () => ({
