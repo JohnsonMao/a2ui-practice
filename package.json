@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "check": "npm run lint && npm run typecheck && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "build:skill": "vite build && cp -r dist/* skills/generate-ui/scripts/",
+    "sync:skill": "cp -r skills/generate-ui/. .agents/skills/generate-ui/"
   },
   "dependencies": {
     "@a2ui/react": "^0.9.1",

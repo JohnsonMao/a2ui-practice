@@ -28,7 +28,7 @@ export const ChoicePickerImpl = createComponentImplementation(ChoicePickerApi, (
             <SelectValue placeholder="選擇..." />
           </SelectTrigger>
           <SelectContent>
-            {options.map((opt: { label: string; value: string }, i: number) => (
+            {options.map((opt: { label: unknown; value: string }, i: number) => (
               <SelectItem key={i} value={opt.value}>
                 {typeof opt.label === 'string' ? opt.label : String(opt.label)}
               </SelectItem>
@@ -43,7 +43,7 @@ export const ChoicePickerImpl = createComponentImplementation(ChoicePickerApi, (
   return (
     <div className="flex flex-col gap-2">
       {label && <span className="text-sm font-medium">{label}</span>}
-      {options.map((opt: { label: string; value: string }, i: number) => (
+      {options.map((opt: { label: unknown; value: string }, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <Checkbox
             checked={values.includes(opt.value)}

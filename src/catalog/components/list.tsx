@@ -1,4 +1,3 @@
-import React from 'react'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
 import { ListApi } from '@a2ui/web_core/v0_9/basic_catalog'
 
