@@ -11,6 +11,7 @@ Generate a valid A2UI v0.9 JSON payload and write it to `public/ui.json`. The ru
 
 Execute these steps in order:
 
+0. **Load component schemas** — before writing any JSON, read all `.md` files in the `references/` directory (same directory as this SKILL.md). Each file documents one available component: its props table and a JSON example. Use `list_dir` on `references/` to see available components, then `read_file` each one you need.
 1. **Write UI** — generate the A2UI JSON and write to `scripts/ui.json` inside the skill folder
 2. **Start server** — run `node scripts/serve.cjs` in async mode from the skill folder (the directory containing this SKILL.md)
 3. **Open browser** — use the `open_browser_page` tool to open `http://localhost:5173`
@@ -61,131 +62,9 @@ A `ui.json` file is a **JSON array** of messages processed in order:
 
 ## Component Reference
 
-### Layout
+Component schemas are auto-generated from the catalog. See the `references/` directory next to this SKILL.md for individual component documentation (props table + JSON example per component).
 
-**Column** — vertical flex stack
-```json
-{ "id": "my-col", "component": "Column", "children": [{"id": "child1"}, {"id": "child2"}],
-  "justify": "start|center|end|spaceBetween|spaceAround|spaceEvenly|stretch",
-  "align": "start|center|end|stretch" }
-```
-
-**Row** — horizontal flex stack
-```json
-{ "id": "my-row", "component": "Row", "children": [{"id": "child1"}],
-  "justify": "start|center|end|spaceBetween|spaceAround|spaceEvenly|stretch",
-  "align": "start|center|end|stretch" }
-```
-
-**Card** — shadcn Card container, takes a single child
-```json
-{ "id": "my-card", "component": "Card", "child": "card-body-id" }
-```
-
-**List** — list container
-```json
-{ "id": "my-list", "component": "List", "children": [{"id": "item1"}],
-  "direction": "vertical|horizontal" }
-```
-
-**Divider** — horizontal or vertical separator
-```json
-{ "id": "my-div", "component": "Divider", "axis": "horizontal|vertical" }
-```
-
-### Typography
-
-**Text** — text display
-```json
-{ "id": "my-text", "component": "Text", "text": "Hello", 
-  "variant": "h1|h2|h3|h4|h5|caption|body" }
-```
-
-### Media
-
-**Image**
-```json
-{ "id": "my-img", "component": "Image", "url": "https://...", "description": "alt text",
-  "variant": "icon|avatar|smallFeature|mediumFeature|largeFeature|header",
-  "fit": "contain|cover|fill|none|scaleDown" }
-```
-
-**Icon** — Lucide icon
-```json
-{ "id": "my-icon", "component": "Icon", "name": "<icon-name>" }
-```
-Available icon names: `accountCircle`, `add`, `arrowBack`, `arrowForward`, `attachFile`, `calendarToday`, `call`, `camera`, `check`, `close`, `delete`, `download`, `edit`, `event`, `error`, `fastForward`, `favorite`, `favoriteOff`, `folder`, `help`, `home`, `info`, `locationOn`, `lock`, `lockOpen`, `mail`, `menu`, `moreVert`, `moreHoriz`, `notifications`, `notificationsOff`, `pause`, `payment`, `person`, `phone`, `photo`, `play`, `print`, `refresh`, `rewind`, `search`, `send`, `settings`, `share`, `shoppingCart`, `skipNext`, `skipPrevious`, `star`, `starHalf`, `starOff`, `stop`, `upload`, `visibility`, `visibilityOff`, `volumeDown`, `volumeMute`, `volumeOff`, `volumeUp`, `warning`
-
-**Video**
-```json
-{ "id": "my-video", "component": "Video", "url": "https://..." }
-```
-
-**AudioPlayer**
-```json
-{ "id": "my-audio", "component": "AudioPlayer", "url": "https://...", "description": "label" }
-```
-
-### Interactive
-
-**Button** — takes a child component for label
-```json
-{ "id": "my-btn", "component": "Button",
-  "variant": "default|primary|borderless",
-  "child": "btn-label-id" }
-```
-Note: Always create a separate `Text` component for the button label and reference it via `child`.
-
-**TextField** — text input
-```json
-{ "id": "my-field", "component": "TextField",
-  "label": "Field Label", "value": "initial value",
-  "variant": "shortText|longText|number|obscured" }
-```
-
-**CheckBox**
-```json
-{ "id": "my-check", "component": "CheckBox", "label": "Option label", "value": false }
-```
-
-**ChoicePicker** — dropdown (mutuallyExclusive) or checkboxes (multipleSelection)
-```json
-{ "id": "my-picker", "component": "ChoicePicker",
-  "label": "Pick one",
-  "options": [{"label": "Option A", "value": "a"}, {"label": "Option B", "value": "b"}],
-  "value": ["a"],
-  "variant": "mutuallyExclusive|multipleSelection" }
-```
-
-**Slider**
-```json
-{ "id": "my-slider", "component": "Slider",
-  "label": "Volume", "min": 0, "max": 100, "value": 50 }
-```
-
-**DateTimeInput**
-```json
-{ "id": "my-date", "component": "DateTimeInput",
-  "value": "2026-04-23",
-  "enableDate": true, "enableTime": false }
-```
-
-**Tabs** — tabbed panels, each tab has a `title` and references a child by ID
-```json
-{ "id": "my-tabs", "component": "Tabs",
-  "tabs": [
-    {"title": "Tab 1", "child": "tab1-content-id"},
-    {"title": "Tab 2", "child": "tab2-content-id"}
-  ]
-}
-```
-
-**Modal** — dialog triggered by another component
-```json
-{ "id": "my-modal", "component": "Modal",
-  "trigger": "trigger-btn-id",
-  "content": "modal-content-id" }
-```
+Load them in Step 0 of the Workflow above before writing any JSON.
 
 ## ID Naming Convention
 
