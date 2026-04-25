@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit",
     "check": "npm run lint && npm run typecheck && npm run test",
     "generate:refs": "node scripts/generate-catalog-refs.mjs",
-    "build:skill": "vite build && cp -r dist/* skills/generate-ui/scripts/ && pnpm generate:refs",
+    "build:skill": "vite build && vite build --config vite.cli.config.ts && cp -r dist/* skills/generate-ui/scripts/ && pnpm generate:refs",
     "sync:skill": "cp -r skills/generate-ui/. .agents/skills/generate-ui/"
   },
   "dependencies": {

@@ -113,30 +113,32 @@ tests:
 ---
 ### Requirement: Provide example ui.json
 
-The repository SHALL include a `public/ui.json` file with a valid A2UI v0.9 message array that creates a surface and renders at least one component.
+The repository SHALL include a `skills/generate-ui/scripts/ui.json` file (within the skill folder) with a valid A2UI v0.9 message array that creates a surface and renders at least one component. Agents SHALL use `cli.cjs set` or `cli.cjs update` to write to this file. The `public/ui.json` file SHALL remain as a standalone example for the dev server and SHALL NOT be used by the skill workflow.
 
-#### Scenario: Example file is valid
+#### Scenario: Skill ui.json is valid
 
-- **WHEN** `public/ui.json` is fetched and parsed
-- **THEN** the resulting array SHALL be accepted by `MessageProcessor.processMessages` without errors
-- **THEN** a visible UI component SHALL be rendered in the browser
+- **WHEN** `skills/generate-ui/scripts/ui.json` is read via `node cli.cjs read`
+- **THEN** the output SHALL be a valid JSON array accepted by `MessageProcessor.processMessages` without errors
+- **THEN** a visible UI component SHALL be rendered in the browser at `http://localhost:5173`
+
+#### Scenario: Agent updates UI incrementally
+
+- **WHEN** an agent runs `node cli.cjs update '[...]'` with a subset of changed components
+- **THEN** `skills/generate-ui/scripts/ui.json` SHALL reflect the merged result
+- **THEN** the React app SHALL render the updated UI within 2 seconds (next poll cycle)
 
 <!-- @trace
-source: a2ui-static-polling-app
-updated: 2026-04-19
+source: generate-ui-cli
+updated: 2026-04-25
 code:
-  - vite.config.ts
-  - src/hooks/useJsonPolling.ts
+  - skills/generate-ui/scripts/cli.cjs
+  - skills/generate-ui/scripts/serve.cjs
+  - vite.cli.config.ts
+  - skills/generate-ui/SKILL.md
+  - skills/generate-ui/scripts/assets/index-0rLisBmW.css
   - package.json
-  - README.md
-  - src/App.tsx
-  - public/ui.json
-  - src/components/ui/button.tsx
-  - tsconfig.app.json
-  - tsconfig.json
+  - skills/generate-ui/scripts/assets/index-Bznp7iK3.js
+  - cli.ts
 tests:
-  - src/App.test.tsx
-  - src/test/setup.ts
-  - src/test/setup.test.ts
-  - src/hooks/useJsonPolling.test.ts
+  - skills/generate-ui/scripts/__tests__/cli.test.mjs
 -->

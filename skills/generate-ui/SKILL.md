@@ -5,24 +5,56 @@ description: Use when asked to generate, update, or modify the UI of this app �
 
 # Generate UI with A2UI
 
-Generate a valid A2UI v0.9 JSON payload and write it to `public/ui.json`. The running app polls this file every 2 seconds and renders changes automatically.
+Generate a valid A2UI v0.9 JSON payload and write it to `scripts/ui.json` inside the skill folder. The running app polls this file every 2 seconds and renders changes automatically.
 
 ## Workflow
 
 Execute these steps in order:
 
 0. **Load component schemas** — before writing any JSON, read all `.md` files in the `references/` directory (same directory as this SKILL.md). Each file documents one available component: its props table and a JSON example. Use `list_dir` on `references/` to see available components, then `read_file` each one you need.
-1. **Write UI** — generate the A2UI JSON and write to `scripts/ui.json` inside the skill folder
-2. **Start server** — run `node scripts/serve.cjs` in async mode from the skill folder (the directory containing this SKILL.md)
-3. **Open browser** — use the `open_browser_page` tool to open `http://localhost:5173`
+1. **Write UI** — use `cli.cjs set` to write the complete A2UI JSON to `scripts/ui.json`
+2. **Start server** — run `node scripts/cli.cjs serve` in async mode from the skill folder. This starts the static server on port 5173 **and** opens the browser automatically.
 
 For step 2:
 ```
-node <path-to-skill-folder>/scripts/serve.cjs
+node <path-to-skill-folder>/scripts/cli.cjs serve
 ```
-Run in async mode. If port 5173 is already in use, skip to step 3.
+Run in async mode. If port 5173 is already in use (error: EADDRINUSE), skip step 2 and run `node scripts/cli.cjs open` instead.
 
-> **Note:** The built app files (index.html, assets/, etc.) live alongside `serve.cjs` in `scripts/`. Run `pnpm build:skill` in the project root to rebuild them, then `pnpm sync:skill` to sync the skill to `.agents/skills/generate-ui/`.
+### Subsequent UI updates (incremental)
+
+After the server is running, prefer incremental updates over rewriting the full JSON:
+
+1. **Read current structure** — run `node scripts/cli.cjs read` to inspect the existing component tree
+2. **Update only what changed** — run `node scripts/cli.cjs update '<json>'` with only the modified or new components
+
+Only use `set` when replacing the entire UI surface (e.g. loading a completely different screen).
+
+## CLI Reference
+
+All CLI commands use `node scripts/cli.cjs` from the skill folder:
+
+| Subcommand | Description |
+|---|---|
+| `serve` | Start static server on port 5173 and open browser |
+| `open` | Open `http://localhost:5173` in default browser (server already running) |
+| `read` | Print current `ui.json` to stdout |
+| `set '<json>'` | Replace entire `ui.json` with provided JSON |
+| `update '<json>'` | Merge components by ID — replace existing, append new |
+
+Examples:
+```
+# Initial setup
+node scripts/cli.cjs set '[{"version":"v0.9","createSurface":{...}},{"version":"v0.9","updateComponents":{...}}]'
+
+# Read current structure before patching
+node scripts/cli.cjs read
+
+# Update a single component
+node scripts/cli.cjs update '[{"id":"submit-btn","component":"Button","variant":"secondary","child":"submit-btn-text"}]'
+```
+
+> **Note:** The built app files (index.html, assets/, etc.) live alongside `cli.cjs` in `scripts/`. Run `pnpm build:skill` in the project root to rebuild them, then `pnpm sync:skill` to sync the skill to `.agents/skills/generate-ui/`.
 
 ## Output Target
 
