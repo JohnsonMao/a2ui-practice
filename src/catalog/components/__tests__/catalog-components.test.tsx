@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { render } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import { SurfaceModel, Catalog, ComponentModel, ComponentContext } from '@a2ui/web_core/v0_9'
 import type { ComponentApi } from '@a2ui/web_core/v0_9'
 
@@ -215,5 +215,44 @@ describe('CustomDateTimeInput', () => {
     const ctx = createTestContext({ value: '', enableDate: true, enableTime: false })
     const { container } = render(<DateTimeInputImpl.render context={ctx} buildChild={noBuildChild} />)
     expect(container.querySelector('input[type="date"]')).toBeTruthy()
+  })
+})
+
+// ----- Interaction: TextField -----
+describe('CustomTextField interaction', () => {
+  it('reflects typed input immediately without external prop change', async () => {
+    const { TextFieldImpl } = await import('../text-field')
+    const ctx = createTestContext({ value: 'initial', label: '', variant: 'shortText' })
+    const { container } = render(<TextFieldImpl.render context={ctx} buildChild={noBuildChild} />)
+    const input = container.querySelector('input')!
+    expect(input.value).toBe('initial')
+    fireEvent.change(input, { target: { value: 'typed' } })
+    expect(input.value).toBe('typed')
+  })
+})
+
+// ----- Interaction: CheckBox -----
+describe('CustomCheckBox interaction', () => {
+  it('reflects toggle immediately without external prop change', async () => {
+    const { CheckBoxImpl } = await import('../checkbox')
+    const ctx = createTestContext({ value: false, label: '' })
+    const { container } = render(<CheckBoxImpl.render context={ctx} buildChild={noBuildChild} />)
+    const checkbox = container.querySelector('button[role="checkbox"]')!
+    expect(checkbox.getAttribute('data-state')).toBe('unchecked')
+    fireEvent.click(checkbox)
+    expect(checkbox.getAttribute('data-state')).toBe('checked')
+  })
+})
+
+// ----- Interaction: DateTimeInput -----
+describe('CustomDateTimeInput interaction', () => {
+  it('reflects date change immediately without external prop change', async () => {
+    const { DateTimeInputImpl } = await import('../date-time-input')
+    const ctx = createTestContext({ value: '2024-01-01', enableDate: true, enableTime: false })
+    const { container } = render(<DateTimeInputImpl.render context={ctx} buildChild={noBuildChild} />)
+    const input = container.querySelector('input')!
+    expect(input.value).toBe('2024-01-01')
+    fireEvent.change(input, { target: { value: '2024-06-15' } })
+    expect(input.value).toBe('2024-06-15')
   })
 })

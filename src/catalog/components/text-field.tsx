@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
 import { TextFieldApi } from '@a2ui/web_core/v0_9/basic_catalog'
 import { Input } from '@/components/ui/input'
@@ -6,8 +6,15 @@ import { Input } from '@/components/ui/input'
 export const TextFieldImpl = createComponentImplementation(TextFieldApi, ({ props }) => {
   const id = React.useId()
   const label = typeof props.label === 'string' ? props.label : ''
-  const value = typeof props.value === 'string' ? props.value : ''
+  const rawValue = props.value
+  const initialValue = typeof rawValue === 'string' ? rawValue : ''
   const variant = props.variant ?? 'shortText'
+
+  const [localValue, setLocalValue] = useState(initialValue)
+
+  useEffect(() => {
+    if (typeof rawValue === 'string') setLocalValue(rawValue)
+  }, [rawValue])
 
   const inputType =
     variant === 'number' ? 'number' :
@@ -15,7 +22,9 @@ export const TextFieldImpl = createComponentImplementation(TextFieldApi, ({ prop
     'text'
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    props.setValue?.(e.target.value)
+    const newVal = e.target.value
+    setLocalValue(newVal)
+    props.setValue?.(newVal)
   }
 
   return (
@@ -28,7 +37,7 @@ export const TextFieldImpl = createComponentImplementation(TextFieldApi, ({ prop
       {variant === 'longText' ? (
         <textarea
           id={id}
-          value={value}
+          value={localValue}
           onChange={handleChange}
           className="flex min-h-20 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         />
@@ -36,7 +45,7 @@ export const TextFieldImpl = createComponentImplementation(TextFieldApi, ({ prop
         <Input
           id={id}
           type={inputType}
-          value={value}
+          value={localValue}
           onChange={handleChange as React.ChangeEventHandler<HTMLInputElement>}
         />
       )}

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
 import { ChoicePickerApi } from '@a2ui/web_core/v0_9/basic_catalog'
 import {
@@ -12,17 +13,28 @@ import { Checkbox } from '@/components/ui/checkbox'
 export const ChoicePickerImpl = createComponentImplementation(ChoicePickerApi, ({ props }) => {
   const label = typeof props.label === 'string' ? props.label : ''
   const options = Array.isArray(props.options) ? props.options : []
-  const values = Array.isArray(props.value) ? (props.value as string[]) : []
+  const rawValue = props.value
+  const initialValues = Array.isArray(rawValue) ? (rawValue as string[]) : []
   const isMutuallyExclusive = (props.variant ?? 'mutuallyExclusive') === 'mutuallyExclusive'
 
+  const [localValues, setLocalValues] = useState<string[]>(initialValues)
+
+  useEffect(() => {
+    if (Array.isArray(rawValue)) setLocalValues(rawValue as string[])
+  }, [rawValue])
+
   if (isMutuallyExclusive) {
-    const selectedValue = values[0] ?? ''
+    const selectedValue = localValues[0] ?? ''
     return (
       <div className="flex flex-col gap-1">
         {label && <span className="text-sm font-medium">{label}</span>}
         <Select
           value={selectedValue}
-          onValueChange={(val) => props.setValue?.([val])}
+          onValueChange={(val) => {
+            const newVals = [val]
+            setLocalValues(newVals)
+            props.setValue?.(newVals)
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="選擇..." />
@@ -46,11 +58,12 @@ export const ChoicePickerImpl = createComponentImplementation(ChoicePickerApi, (
       {options.map((opt: { label: unknown; value: string }, i: number) => (
         <div key={i} className="flex items-center gap-2">
           <Checkbox
-            checked={values.includes(opt.value)}
+            checked={localValues.includes(opt.value)}
             onCheckedChange={(checked) => {
               const newVals = checked
-                ? [...values, opt.value]
-                : values.filter((v) => v !== opt.value)
+                ? [...localValues, opt.value]
+                : localValues.filter((v) => v !== opt.value)
+              setLocalValues(newVals)
               props.setValue?.(newVals)
             }}
           />

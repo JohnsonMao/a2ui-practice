@@ -8,6 +8,32 @@
   },
   {
     "version": "v0.9",
+    "updateDataModel": {
+      "surfaceId": "main",
+      "path": "/",
+      "value": {
+        "user": {
+          "name": "Johnson Mao",
+          "email": "johnson@example.com",
+          "bio": "喜歡寫程式、攝影和爬山。"
+        },
+        "prefs": {
+          "darkMode": false,
+          "autoSave": true,
+          "language": ["zh-TW"],
+          "fontSize": 16
+        },
+        "notif": {
+          "email": true,
+          "push": true,
+          "sms": false,
+          "frequency": ["realtime"]
+        }
+      }
+    }
+  },
+  {
+    "version": "v0.9",
     "updateComponents": {
       "surfaceId": "main",
       "components": [
@@ -101,21 +127,21 @@
           "id": "name-field",
           "component": "TextField",
           "label": "顯示名稱",
-          "value": "Johnson Mao",
+          "value": { "path": "/user/name" },
           "variant": "shortText"
         },
         {
           "id": "email-field",
           "component": "TextField",
           "label": "電子郵件",
-          "value": "johnson@example.com",
+          "value": { "path": "/user/email" },
           "variant": "shortText"
         },
         {
           "id": "bio-field",
           "component": "TextField",
           "label": "個人簡介",
-          "value": "喜歡寫程式、攝影和爬山。",
+          "value": { "path": "/user/bio" },
           "variant": "longText"
         },
         {
@@ -257,13 +283,13 @@
           "id": "dark-mode",
           "component": "CheckBox",
           "label": "深色模式",
-          "value": false
+          "value": { "path": "/prefs/darkMode" }
         },
         {
           "id": "auto-save",
           "component": "CheckBox",
           "label": "自動儲存草稿",
-          "value": true
+          "value": { "path": "/prefs/autoSave" }
         },
         {
           "id": "divider-prefs",
@@ -284,7 +310,7 @@
             { "label": "English", "value": "en" },
             { "label": "日本語", "value": "ja" }
           ],
-          "value": ["zh-TW"],
+          "value": { "path": "/prefs/language" },
           "variant": "mutuallyExclusive"
         },
         {
@@ -293,7 +319,7 @@
           "label": "字體大小",
           "min": 12,
           "max": 24,
-          "value": 16
+          "value": { "path": "/prefs/fontSize" }
         },
         {
           "id": "prefs-actions",
@@ -351,19 +377,19 @@
           "id": "email-notif",
           "component": "CheckBox",
           "label": "電子郵件通知",
-          "value": true
+          "value": { "path": "/notif/email" }
         },
         {
           "id": "push-notif",
           "component": "CheckBox",
           "label": "推播通知",
-          "value": true
+          "value": { "path": "/notif/push" }
         },
         {
           "id": "sms-notif",
           "component": "CheckBox",
           "label": "簡訊通知",
-          "value": false
+          "value": { "path": "/notif/sms" }
         },
         {
           "id": "divider-notif",
@@ -383,7 +409,7 @@
             { "label": "每小時摘要", "value": "hourly" },
             { "label": "每日摘要", "value": "daily" }
           ],
-          "value": ["realtime"],
+          "value": { "path": "/notif/frequency" },
           "variant": "mutuallyExclusive"
         },
         {
