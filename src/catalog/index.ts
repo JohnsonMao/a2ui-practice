@@ -18,6 +18,7 @@ import { CheckBoxImpl } from './components/checkbox'
 import { ChoicePickerImpl } from './components/choice-picker'
 import { SliderImpl } from './components/slider'
 import { DateTimeInputImpl } from './components/date-time-input'
+import { BoxImpl } from './components/box'
 
 export const customCatalog = new Catalog<ReactComponentImplementation>('custom', [
   TextImpl,
@@ -38,4 +39,5 @@ export const customCatalog = new Catalog<ReactComponentImplementation>('custom',
   ChoicePickerImpl,
   SliderImpl,
   DateTimeInputImpl,
+  BoxImpl,
 ])
