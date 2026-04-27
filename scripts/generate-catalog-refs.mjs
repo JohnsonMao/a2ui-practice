@@ -13,7 +13,7 @@
  * scripts/custom-catalog-apis.mjs (see bottom of this file for format).
  */
 
-import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs'
+import { readFileSync, readdirSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
@@ -49,19 +49,14 @@ const allApis = { ...basicApis, ...customApis }
 // Step 3: Parse src/catalog/index.ts to get the ordered Impl list
 // ---------------------------------------------------------------------------
 
-const catalogSrc = readFileSync(resolve(root, 'src/catalog/index.ts'), 'utf-8')
-
-// Extract the array passed to `new Catalog<...>('custom', [ ... ])`
-const catalogMatch = catalogSrc.match(/new Catalog[^(]*\([^,]+,\s*\[([^\]]+)\]/s)
-if (!catalogMatch) {
-  console.error('❌ Could not parse customCatalog from src/catalog/index.ts')
-  process.exit(1)
-}
-
-const implNames = catalogMatch[1]
-  .split(',')
-  .map((s) => s.trim())
-  .filter(Boolean)
+const componentsDir = resolve(root, 'src/catalog/components')
+const implNames = readdirSync(componentsDir)
+  .filter((f) => f.endsWith('.tsx') && !f.startsWith('_'))
+  .map((f) => {
+    const base = f.replace(/\.tsx$/, '')
+    const pascal = base.split('-').map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join('')
+    return `${pascal}Impl`
+  })
 
 // ---------------------------------------------------------------------------
 // Step 4: Resolve each Impl → Api
