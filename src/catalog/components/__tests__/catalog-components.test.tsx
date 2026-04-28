@@ -256,3 +256,29 @@ describe('CustomDateTimeInput interaction', () => {
     expect(input.value).toBe('2024-06-15')
   })
 })
+
+// ----- Sandbox -----
+describe('CustomSandbox', () => {
+  it('renders iframe element', async () => {
+    const { SandboxImpl } = await import('../sandbox')
+    const ctx = createTestContext({ source: 'export default () => null', props: {} })
+    const { container } = render(<SandboxImpl.render context={ctx} buildChild={noBuildChild} />)
+    expect(container.querySelector('iframe')).toBeTruthy()
+  })
+
+  it('iframe has sandbox="allow-scripts" attribute', async () => {
+    const { SandboxImpl } = await import('../sandbox')
+    const ctx = createTestContext({ source: 'export default () => null' })
+    const { container } = render(<SandboxImpl.render context={ctx} buildChild={noBuildChild} />)
+    expect(container.querySelector('iframe')?.getAttribute('sandbox')).toBe('allow-scripts')
+  })
+})
+
+// ----- Catalog registration -----
+describe('customCatalog', () => {
+  it('contains all 19 components including Sandbox', async () => {
+    const { customCatalog } = await import('../../index')
+    expect(customCatalog.components.has('Sandbox')).toBe(true)
+    expect(customCatalog.components.size).toBe(20)
+  })
+})

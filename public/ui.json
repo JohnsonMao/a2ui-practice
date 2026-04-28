@@ -43,7 +43,11 @@
           "children": [
             { "id": "header" },
             { "id": "divider-top" },
-            { "id": "main-tabs" }
+            { "id": "main-tabs" },
+            { "id": "divider-chart" },
+            { "id": "user-card-sandbox" },
+            { "id": "divider-chart2" },
+            { "id": "chart-sandbox" }
           ]
         },
 
@@ -430,6 +434,30 @@
           "component": "Button",
           "variant": "primary",
           "child": "save-notif-text"
+        },
+
+        {
+          "id": "divider-chart",
+          "component": "Divider"
+        },
+        {
+          "id": "user-card-sandbox",
+          "component": "Sandbox",
+          "source": "import { createElement as h } from 'react';\nexport default function UserCard({ name, email, bio }) {\n  return h('div', { style: { padding: '16px', fontFamily: 'sans-serif', border: '1px solid #e5e7eb', borderRadius: '8px', background: '#f9fafb' } },\n    h('h3', { style: { margin: '0 0 4px', fontSize: '18px' } }, name),\n    h('p', { style: { margin: '0 0 8px', color: '#6b7280', fontSize: '14px' } }, email),\n    h('p', { style: { margin: 0, fontSize: '14px' } }, bio)\n  );\n}",
+          "props": {
+            "name": { "path": "/user/name" },
+            "email": { "path": "/user/email" },
+            "bio": { "path": "/user/bio" }
+          }
+        },
+        {
+          "id": "divider-chart2",
+          "component": "Divider"
+        },
+        {
+          "id": "chart-sandbox",
+          "component": "Sandbox",
+          "source": "import { createElement as h } from 'react';\nimport { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'https://esm.sh/recharts@2?external=react,react-dom';\nconst data = [{name:'Jan',v:400},{name:'Feb',v:300},{name:'Mar',v:600},{name:'Apr',v:500},{name:'May',v:350},{name:'Jun',v:700}];\nexport default function Chart() {\n  return h(ResponsiveContainer, { width: '100%', height: 300 },\n    h(BarChart, { data, margin: { top: 16, right: 24, left: 0, bottom: 0 } },\n      h(CartesianGrid, { strokeDasharray: '3 3' }),\n      h(XAxis, { dataKey: 'name' }),\n      h(YAxis, null),\n      h(Tooltip, null),\n      h(Bar, { dataKey: 'v', fill: '#6366f1', radius: [4,4,0,0] })\n    )\n  );\n}"
         }
       ]
     }

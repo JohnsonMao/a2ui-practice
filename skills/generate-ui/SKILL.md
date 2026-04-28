@@ -94,9 +94,50 @@ A `ui.json` file is a **JSON array** of messages processed in order:
 
 ## Component Reference
 
-Component schemas are auto-generated from the catalog. See the `references/` directory next to this SKILL.md for individual component documentation (props table + JSON example per component).
+Component schemas are auto-generated from the catalog. See the `references/` directory next to this SKILL.md for individual component documentation (props table + JSON example per component). This includes `references/Sandbox.md`.
 
 Load them in Step 0 of the Workflow above before writing any JSON.
+
+### When no existing component meets the need — use Sandbox
+
+If none of the catalog components in `references/` can satisfy the user's UI requirement, use the `Sandbox` component instead:
+
+- **`source`** (required): A complete ESM string with `import` statements and an `export default` React component.
+- Third-party packages must be imported from `https://esm.sh/<package>` inside the source string. If the package has React as a peer dependency (e.g. recharts), append `?external=react,react-dom` to avoid a dual-React-instance error.
+- **`props`** (optional): Pass dynamic data into the component. Values can be static or A2UI DataBindings (`{ "path": "/..." }`).
+
+Example — simple counter (no third-party library, uses `react` bare specifier from importmap):
+```json
+{
+  "id": "counter",
+  "component": "Sandbox",
+  "source": "import { createElement as h, useState } from 'react';\nexport default function Counter() {\n  const [n, setN] = useState(0);\n  return h('div', null,\n    h('p', null, 'Count: ' + n),\n    h('button', { onClick: () => setN(n + 1) }, '+1')\n  );\n}"
+}
+```
+
+Example — recharts bar chart (third-party library with React peer dep — **must** append `?external=react,react-dom`):
+```json
+{
+  "id": "sales-chart",
+  "component": "Sandbox",
+  "source": "import { createElement as h } from 'react';\nimport { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from 'https://esm.sh/recharts@2?external=react,react-dom';\nconst data = [{name:'Jan',v:400},{name:'Feb',v:300},{name:'Mar',v:600}];\nexport default function Chart() {\n  return h(ResponsiveContainer, { width: '100%', height: 300 },\n    h(BarChart, { data },\n      h(CartesianGrid, { strokeDasharray: '3 3' }),\n      h(XAxis, { dataKey: 'name' }),\n      h(YAxis, null),\n      h(Tooltip, null),\n      h(Bar, { dataKey: 'v', fill: '#6366f1', radius: [4,4,0,0] })\n    )\n  );\n}"
+}
+```
+
+Example — data model binding via `props`:
+```json
+{
+  "id": "user-card",
+  "component": "Sandbox",
+  "source": "import { createElement as h } from 'react';\nexport default function UserCard({ name, email }) {\n  return h('div', { style: { padding: '16px' } },\n    h('h3', null, name),\n    h('p', null, email)\n  );\n}",
+  "props": {
+    "name": { "path": "/user/name" },
+    "email": { "path": "/user/email" }
+  }
+}
+```
+
+> **Note:** Always use `createElement` (not JSX) in `source` — JSX is not transformed inside the iframe.
 
 ## ID Naming Convention
 
