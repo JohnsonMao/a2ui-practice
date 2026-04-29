@@ -3,13 +3,13 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { z } from 'zod'
 import { createBinderlessComponentImplementation } from '@a2ui/react/v0_9'
 
-const SandboxApi: ComponentApi = {
+export const SandboxApi = {
   name: 'Sandbox',
   schema: z.object({
-    source: z.string(),
-    props: z.record(z.unknown()).optional(),
+    source: z.string().describe('The full React component source code to render inside an isolated iframe sandbox. Must be a valid ES module that default-exports a React component (e.g. `export default function MyComponent({ name }) { return <h1>Hello {name}</h1> }`). Can import from `react` and `react-dom/client` via importmap.'),
+    props: z.record(z.unknown()).describe('Key-value pairs passed to the sandboxed component as props. Values are forwarded via postMessage on mount and on every update. Use this to pass dynamic data from the outer surface into the sandboxed component.').optional(),
   }).strict(),
-}
+} satisfies ComponentApi
 
 /**
  * Builds the srcdoc HTML for the sandbox iframe.
@@ -22,14 +22,15 @@ const SandboxApi: ComponentApi = {
  * - Source is JSON-stringified; `</` is escaped to `<\/` to prevent the HTML
  *   parser from prematurely closing the <script> tag when parsing srcdoc
  */
-function buildSrcdoc(source: string): string {
+function buildSrcdoc(source: string, reactBase: string, parentOrigin: string): string {
   const safeSource = JSON.stringify(source).replace(/<\//g, '<\\/')
+  const safeParentOrigin = JSON.stringify(parentOrigin)
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="utf-8">
   <style>body{margin:0;overflow:hidden}</style>
-  <script type="importmap">{"imports":{"react":"https://esm.sh/react@18","react/":"https://esm.sh/react@18/","react-dom":"https://esm.sh/react-dom@18","react-dom/":"https://esm.sh/react-dom@18/","react-dom/client":"https://esm.sh/react-dom@18/client"}}</script>
+  <script type="importmap">{"imports":{"react":"${reactBase}/react@18","react/":"${reactBase}/react@18/","react-dom":"${reactBase}/react-dom@18","react-dom/":"${reactBase}/react-dom@18/","react-dom/client":"${reactBase}/react-dom@18/client"}}</script>
 </head>
 <body>
   <div id="root"></div>
@@ -37,6 +38,7 @@ function buildSrcdoc(source: string): string {
     import { createElement } from 'react';
     import { createRoot } from 'react-dom/client';
 
+    const PARENT_ORIGIN = ${safeParentOrigin};
     const rootEl = document.getElementById('root');
     const root = createRoot(rootEl);
     let Component = null;
@@ -53,13 +55,15 @@ function buildSrcdoc(source: string): string {
     }
 
     // Props passed via postMessage (a2ui:props)
+    // targetOrigin from host is '*' (iframe has opaque null origin); validate sender here
     window.addEventListener('message', (e) => {
+      if (e.origin !== PARENT_ORIGIN) return;
       if (e.data?.type === 'a2ui:props') renderComponent(e.data.payload ?? {});
     });
 
     // iframe 高度自適應: report root element height to parent
     new ResizeObserver(([entry]) => {
-      window.parent.postMessage({ type: 'a2ui:resize', height: entry.contentRect.height }, '*');
+      window.parent.postMessage({ type: 'a2ui:resize', height: entry.contentRect.height }, PARENT_ORIGIN);
     }).observe(rootEl);
 
     const blobUrl = URL.createObjectURL(new Blob([${safeSource}], { type: 'text/javascript' }));
@@ -167,7 +171,9 @@ export const SandboxImpl = createBinderlessComponentImplementation(SandboxApi, (
     return () => window.removeEventListener('message', onMessage)
   }, [])
 
-  const srcdoc = useMemo(() => buildSrcdoc(source), [source])
+  const reactBase = import.meta.env.VITE_SANDBOX_REACT_BASE_URL ?? 'https://esm.sh'
+  const parentOrigin = window.location.origin
+  const srcdoc = useMemo(() => buildSrcdoc(source, reactBase, parentOrigin), [source, reactBase, parentOrigin])
 
   return (
     <iframe
