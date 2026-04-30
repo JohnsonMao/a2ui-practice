@@ -1,11 +1,27 @@
 ---
 name: add-to-catalog
-description: Use when asked to add a new component to the catalog, register a component, or integrate a UI component into the A2UI catalog pipeline. Triggers on requests like "add component to catalog", "register this component", "add DatePicker to catalog", "add X to catalog".
+description: Use when asked to add, register, or integrate a new React UI component into the A2UI catalog pipeline for AI-agent usage.
 ---
 
 # Add a Component to the A2UI Catalog
 
 Integrate an existing React UI component into the A2UI catalog so that it can be driven by AI agents via the `generate-ui` skill.
+
+## When NOT to Use
+
+- The component is a pure utility or hook (no rendered output)
+
+## Quick Reference: TypeScript → Zod Type Mapping
+
+| TypeScript Type | Zod |
+|----------------|-----|
+| `string` | `z.string()` |
+| `number` | `z.number()` |
+| `boolean` | `z.boolean()` |
+| `'a' \| 'b'` | `z.enum(['a', 'b'])` |
+| `T \| undefined` | `z.xxx().optional()` |
+
+Always close the schema with `.strict()`.
 
 ## Design Decisions
 
@@ -37,9 +53,9 @@ Determine the full path to the source component. Accept:
 
 Read the target component source file in full.
 
-### Step 2: Read the reference template
+### Step 2: Reference template structure
 
-Read `src/catalog/components/box.tsx` to understand the required structure:
+All catalog components follow this structure:
 
 ```ts
 import type { ComponentApi } from '@a2ui/web_core/v0_9'
@@ -63,7 +79,17 @@ export const XxxImpl = createComponentImplementation(XxxApi, ({ props, buildChil
 From the target component's props interface, identify which props are semantically meaningful for AI-driven usage. For each selected prop:
 
 - Map its TypeScript type to a Zod primitive (`z.string()`, `z.number()`, `z.boolean()`, `z.enum([...])`)
-- Add a `.describe()` annotation explaining what the prop does and when to use it (see `box.tsx` and `sandbox.tsx` for style reference)
+- Add a `.describe()` annotation explaining what the prop does and when to use it. Keep it concise and agent-facing — describe semantic intent, not implementation detail:
+  ```ts
+  // ✅ Good
+  label: z.string().describe('Text label displayed above or beside the input.'),
+  disabled: z.boolean().optional().describe('Prevents interaction when true.'),
+  onChangeCallbackId: z.string().optional().describe('Callback ID invoked with the new value when the user changes selection.'),
+
+  // ❌ Bad (too vague / too implementation-specific)
+  label: z.string().describe('The label prop.'),
+  className: z.string().optional().describe('CSS class string passed to the root element.'),
+  ```
 - Mark props that are optional in the source as `z.xxx().optional()`
 - Always close the schema with `.strict()`
 
@@ -115,3 +141,13 @@ This syncs `skills/` to `.agents/skills/`. After this step, the new component is
 Confirm to the user:
 - `skills/generate-ui/references/<ComponentName>.md` was created
 - The component is now registered in the catalog and available for `generate-ui`
+
+## Common Mistakes
+
+| Mistake | Correct Approach |
+|---------|------------------|
+| Using `sandbox.tsx` as the template | Use `box.tsx` (the simplest, side-effect-free template) |
+| Mapping `onChange` directly as a function prop | Use `onChangeCallbackId: z.string().optional()` instead |
+| Forgetting `.strict()` at the end of the schema | Always close the schema with `.strict()` |
+| Proceeding to Step 6 without confirming Step 4/5 succeeded | Steps are strictly sequential — stop immediately on any failure |
+| Overwriting an existing catalog component file | Always ask the user whether to overwrite; never decide unilaterally |

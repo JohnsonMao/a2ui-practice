@@ -1,29 +1,40 @@
 ---
 name: generate-ui
-description: Use when asked to generate, update, or modify the UI of this app — create forms, dashboards, profile pages, or any visual layout. Triggers on requests like "幫我建一個表單", "更新 UI", "新增一個頁面", or any instruction to change what the app displays.
+description: Use when asked to generate, update, or modify the UI of this app. Triggers on UI creation, form building, dashboard layout, or any visual change request.
 ---
 
 # Generate UI with A2UI
 
 Generate a valid A2UI v0.9 JSON payload and write it to `scripts/ui.json` inside the skill folder. The running app polls this file every 2 seconds and renders changes automatically.
 
+## When NOT to Use
+
+Do NOT trigger this skill for requests that do not require visual UI changes:
+- Modifying business logic, data calculations, or API endpoints without changing the displayed UI
+- Fixing non-visual bugs (e.g., incorrect data binding values, event handler logic)
+- Configuration changes that have no visual effect
+
 ## Workflow
 
-Execute these steps in order:
+**Is this the first render, or an update to existing UI?**
+- **First render** → follow steps 0–2 below
+- **Updating existing UI** → skip to [Incremental Updates](#incremental-updates)
 
-0. **Load component schemas** — before writing any JSON, read all `.md` files in the `references/` directory (same directory as this SKILL.md). Each file documents one available component: its props table and a JSON example. Use `list_dir` on `references/` to see available components, then `read_file` each one you need.
+### First Render
+
+0. **Load component schemas** — before writing any JSON, use `list_dir` on `references/` (same directory as this SKILL.md) to discover available components, then `read_file` only the specific component files needed for this task. Do NOT read all reference files upfront.
 1. **Write UI** — use `cli.cjs set` to write the complete A2UI JSON to `scripts/ui.json`
 2. **Start server** — run `node scripts/cli.cjs serve` in async mode from the skill folder. This starts the static server on port 5173 **and** opens the browser automatically.
 
-For step 2:
 ```
 node <path-to-skill-folder>/scripts/cli.cjs serve
 ```
-Run in async mode. If port 5173 is already in use (error: EADDRINUSE), skip step 2 and run `node scripts/cli.cjs open` instead.
 
-### Subsequent UI updates (incremental)
+> **Port conflict (EADDRINUSE):** If port 5173 is already in use, skip `serve` and run `node scripts/cli.cjs open` instead — the server is already running.
 
-After the server is running, prefer incremental updates over rewriting the full JSON:
+### Incremental Updates
+
+For any change to an already-rendered UI, **never use `set`** — use `update` instead:
 
 1. **Read current structure** — run `node scripts/cli.cjs read` to inspect the existing component tree
 2. **Update only what changed** — run `node scripts/cli.cjs update '<json>'` with only the modified or new components
@@ -54,11 +65,9 @@ node scripts/cli.cjs read
 node scripts/cli.cjs update '[{"id":"submit-btn","component":"Button","variant":"secondary","child":"submit-btn-text"}]'
 ```
 
-> **Note:** The built app files (index.html, assets/, etc.) live alongside `cli.cjs` in `scripts/`. Run `pnpm build:skill` in the project root to rebuild them, then `pnpm sync:skill` to sync the skill to `.agents/skills/generate-ui/`.
-
 ## Output Target
 
-Always write the complete JSON array to **`scripts/ui.json`** inside the skill folder (i.e. `skills/generate-ui/scripts/ui.json` in the project, or the same relative path inside `.agents/skills/generate-ui/scripts/ui.json` when running from the agent context). Do NOT write to `public/ui.json`.
+Always use the CLI commands (`set` or `update`) to write UI JSON — the CLI handles the output path internally. Never write `ui.json` directly with file tools.
 
 ## A2UI v0.9 Message Format
 
@@ -184,3 +193,5 @@ For Button labels, always suffix the Text component with `-text`: `submit-btn-te
 | Button without child | Create a Text component and reference via `child` |
 | Tabs `child` as array | Each tab takes a single `child` ID string |
 | Duplicate IDs | Every component ID must be globally unique |
+| Bypassing the CLI to write `ui.json` directly | Always use `node scripts/cli.cjs set '<json>'` or `update '<json>'`; never write `ui.json` with file tools |
+| Using `set` for small updates | Use `update` for incremental changes; `set` replaces the entire UI |
