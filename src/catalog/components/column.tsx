@@ -1,6 +1,23 @@
 import React from 'react'
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { ChildListSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { ColumnApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
+
+export const ColumnApi = {
+  name: 'Column',
+  schema: z.object({
+    children: ChildListSchema.describe('Ordered list of child component IDs rendered vertically.').optional(),
+    justify: z
+      .enum(['start', 'center', 'end', 'spaceBetween', 'spaceAround', 'spaceEvenly', 'stretch'])
+      .describe('Main-axis distribution of children in the vertical direction.')
+      .optional(),
+    align: z
+      .enum(['start', 'center', 'end', 'stretch'])
+      .describe('Cross-axis alignment of children in the horizontal direction.')
+      .optional(),
+  }).strict(),
+} satisfies ComponentApi
 
 const justifyMap: Record<string, string> = {
   start: 'justify-start',

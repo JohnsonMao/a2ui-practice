@@ -4,10 +4,8 @@
 
 | Prop | Type | Description | Default | Required |
 |------|------|-------------|---------|----------|
-| `accessibility` | object | Attributes to enhance accessibility. | — | — |
-| `weight` | number | The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column. | — | — |
-| `trigger` | string | The ID of the component that opens the modal when interacted with (e.g., a button). Do NOT define the component inline. | — | ✓ |
-| `content` | string | The ID of the component to be displayed inside the modal. Do NOT define the component inline. | — | ✓ |
+| `trigger` | string | ID of the component used as the modal trigger. | — | ✓ |
+| `content` | string | ID of the component rendered inside the modal content area. | — | ✓ |
 
 ## JSON Example
 
@@ -20,4 +18,3 @@
 }
 ```
 
-**Optional props:** `accessibility`, `weight`

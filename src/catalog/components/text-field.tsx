@@ -1,7 +1,22 @@
 import React, { useState, useEffect } from 'react'
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { TextFieldApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
 import { Input } from '@/components/ui/input'
+
+export const TextFieldApi = {
+  name: 'TextField',
+  schema: z.object({
+    label: DynamicStringSchema.describe('The text label for the input field.'),
+    value: DynamicStringSchema.describe('Current text value of the input.').optional(),
+    variant: z
+      .enum(['longText', 'number', 'shortText', 'obscured'])
+      .describe('Input mode. Use longText for textarea, number for numeric input, obscured for passwords.')
+      .optional(),
+    validationRegexp: z.string().describe('Optional regular expression string used for client-side validation hints.').optional(),
+  }).strict(),
+} satisfies ComponentApi
 
 export const TextFieldImpl = createComponentImplementation(TextFieldApi, ({ props }) => {
   const id = React.useId()

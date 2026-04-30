@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicStringListSchema, DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { ChoicePickerApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
 import {
   Select,
   SelectContent,
@@ -9,6 +11,22 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Checkbox } from '@/components/ui/checkbox'
+
+export const ChoicePickerApi = {
+  name: 'ChoicePicker',
+  schema: z.object({
+    label: DynamicStringSchema.describe('Optional label displayed above the options.').optional(),
+    variant: z
+      .enum(['mutuallyExclusive', 'multipleSelection'])
+      .describe('Selection mode. Use "mutuallyExclusive" for single selection, "multipleSelection" for multi-select.')
+      .optional(),
+    options: z.array(z.object({
+      label: z.string().describe('Display label for an option.'),
+      value: z.string().describe('Stable string value for an option.'),
+    })).describe('List of available choices.'),
+    value: DynamicStringListSchema.describe('Current selected values. Single-select mode uses the first value in the list.'),
+  }).strict(),
+} satisfies ComponentApi
 
 export const ChoicePickerImpl = createComponentImplementation(ChoicePickerApi, ({ props }) => {
   const label = typeof props.label === 'string' ? props.label : ''

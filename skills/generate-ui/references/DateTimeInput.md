@@ -4,15 +4,12 @@
 
 | Prop | Type | Description | Default | Required |
 |------|------|-------------|---------|----------|
-| `accessibility` | object | Attributes to enhance accessibility. | — | — |
-| `weight` | number | The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column. | — | — |
-| `value` | string \| expression | The selected date and/or time value in ISO 8601 format. If not yet set, initialize with an empty string. | — | ✓ |
-| `enableDate` | boolean | If true, allows the user to select a date. | false | — |
-| `enableTime` | boolean | If true, allows the user to select a time. | false | — |
-| `min` | string \| expression | The minimum allowed date/time in ISO 8601 format. | — | — |
-| `max` | string \| expression | The maximum allowed date/time in ISO 8601 format. | — | — |
-| `label` | string \| expression | The text label for the input field. | — | — |
-| `checks` | array | A list of checks to perform. | — | — |
+| `value` | string \| expression | Current value in ISO-like input format (date, time, or datetime-local). | — | ✓ |
+| `enableDate` | boolean | When true, date selection is enabled. | — | — |
+| `enableTime` | boolean | When true, time selection is enabled. | — | — |
+| `min` | string | Optional lower bound for the date/time value. | — | — |
+| `max` | string | Optional upper bound for the date/time value. | — | — |
+| `label` | string | Optional label for the input field. | — | — |
 
 ## JSON Example
 
@@ -24,4 +21,4 @@
 }
 ```
 
-**Optional props:** `accessibility`, `weight`, `enableDate`, `enableTime`, `min`, `max`, `label`, `checks`
+**Optional props:** `enableDate`, `enableTime`, `min`, `max`, `label`

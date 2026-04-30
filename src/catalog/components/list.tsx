@@ -1,5 +1,18 @@
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { ChildListSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { ListApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
+
+export const ListApi = {
+  name: 'List',
+  schema: z.object({
+    direction: z
+      .enum(['vertical', 'horizontal'])
+      .describe('Layout direction for list items.')
+      .optional(),
+    children: ChildListSchema.describe('Ordered child component IDs rendered as list items.').optional(),
+  }).strict(),
+} satisfies ComponentApi
 
 export const ListImpl = createComponentImplementation(ListApi, ({ props, buildChild }) => {
   const direction = props.direction ?? 'vertical'

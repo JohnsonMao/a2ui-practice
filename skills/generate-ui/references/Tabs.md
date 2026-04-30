@@ -4,9 +4,7 @@
 
 | Prop | Type | Description | Default | Required |
 |------|------|-------------|---------|----------|
-| `accessibility` | object | Attributes to enhance accessibility. | — | — |
-| `weight` | number | The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column. | — | — |
-| `tabs` | array | An array of objects, where each object defines a tab with a title and a child component. | — | ✓ |
+| `tabs` | array | Ordered list of tabs and their content component IDs. | — | ✓ |
 
 ## JSON Example
 
@@ -23,4 +21,3 @@
 }
 ```
 
-**Optional props:** `accessibility`, `weight`

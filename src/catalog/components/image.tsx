@@ -1,5 +1,23 @@
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { ImageApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
+
+export const ImageApi = {
+  name: 'Image',
+  schema: z.object({
+    url: DynamicStringSchema.describe('Image source URL.'),
+    description: DynamicStringSchema.describe('Alternative text for accessibility and screen readers.').optional(),
+    fit: z
+      .enum(['contain', 'cover', 'fill', 'none', 'scaleDown'])
+      .describe('How the image should fit within its frame.')
+      .optional(),
+    variant: z
+      .enum(['icon', 'avatar', 'smallFeature', 'mediumFeature', 'largeFeature', 'header'])
+      .describe('Size preset for common image usages.')
+      .optional(),
+  }).strict(),
+} satisfies ComponentApi
 
 const fitMap: Record<string, string> = {
   contain: 'object-contain',

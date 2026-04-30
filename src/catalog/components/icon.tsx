@@ -1,5 +1,7 @@
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { IconApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
 import {
   User, Plus, ArrowLeft, ArrowRight, Paperclip, Calendar, Phone, Camera,
   Check, X, Trash2, Download, Edit, CalendarDays, AlertCircle, FastForward,
@@ -10,6 +12,13 @@ import {
   StarOff, Square, Upload, Eye, EyeOff, Volume1, VolumeX, Volume2, AlertTriangle,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+
+export const IconApi = {
+  name: 'Icon',
+  schema: z.object({
+    name: DynamicStringSchema.describe('Icon identifier. Use values like "add", "search", "settings", or "warning".'),
+  }).strict(),
+} satisfies ComponentApi
 
 const iconMap: Record<string, LucideIcon> = {
   accountCircle: User,

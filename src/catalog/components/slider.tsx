@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react'
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicNumberSchema, DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { SliderApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
 import { Slider } from '@/components/ui/slider'
+
+export const SliderApi = {
+  name: 'Slider',
+  schema: z.object({
+    label: DynamicStringSchema.describe('Optional label shown above the slider.').optional(),
+    min: z.number().describe('Minimum slider value.').optional(),
+    max: z.number().describe('Maximum slider value.'),
+    value: DynamicNumberSchema.describe('Current slider value.'),
+  }).strict(),
+} satisfies ComponentApi
 
 export const SliderImpl = createComponentImplementation(SliderApi, ({ props }) => {
   const label = typeof props.label === 'string' ? props.label : ''

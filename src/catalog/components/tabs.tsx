@@ -1,6 +1,17 @@
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { TabsApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+
+export const TabsApi = {
+  name: 'Tabs',
+  schema: z.object({
+    tabs: z.array(z.object({
+      title: z.string().describe('Visible title of the tab.'),
+      child: z.string().describe('ID of the component rendered as this tab content.').optional(),
+    })).describe('Ordered list of tabs and their content component IDs.'),
+  }).strict(),
+} satisfies ComponentApi
 
 export const TabsImpl = createComponentImplementation(TabsApi, ({ props, buildChild }) => {
   const tabs = Array.isArray(props.tabs) ? props.tabs : []

@@ -4,10 +4,8 @@
 
 | Prop | Type | Description | Default | Required |
 |------|------|-------------|---------|----------|
-| `accessibility` | object | Attributes to enhance accessibility. | — | — |
-| `weight` | number | The relative weight of this component within a Row or Column. This is similar to the CSS 'flex-grow' property. Note: this may ONLY be set when the component is a direct descendant of a Row or Column. | — | — |
-| `url` | string \| expression | The URL of the audio to be played. | — | ✓ |
-| `description` | string \| expression | A description of the audio, such as a title or summary. | — | — |
+| `url` | string \| expression | Audio source URL to play. Use an HTTPS URL or a resolvable local asset path. | — | ✓ |
+| `description` | string \| expression | Optional helper text shown above the audio controls. | — | — |
 
 ## JSON Example
 
@@ -19,4 +17,4 @@
 }
 ```
 
-**Optional props:** `accessibility`, `weight`, `description`
+**Optional props:** `description`

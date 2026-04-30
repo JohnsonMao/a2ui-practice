@@ -1,5 +1,15 @@
+import type { ComponentApi } from '@a2ui/web_core/v0_9'
+import { DynamicStringSchema } from '@a2ui/web_core/v0_9'
 import { createComponentImplementation } from '@a2ui/react/v0_9'
-import { AudioPlayerApi } from '@a2ui/web_core/v0_9/basic_catalog'
+import { z } from 'zod'
+
+export const AudioPlayerApi = {
+  name: 'AudioPlayer',
+  schema: z.object({
+    url: DynamicStringSchema.describe('Audio source URL to play. Use an HTTPS URL or a resolvable local asset path.'),
+    description: DynamicStringSchema.describe('Optional helper text shown above the audio controls.').optional(),
+  }).strict(),
+} satisfies ComponentApi
 
 export const AudioPlayerImpl = createComponentImplementation(AudioPlayerApi, ({ props }) => {
   const url = typeof props.url === 'string' ? props.url : ''
