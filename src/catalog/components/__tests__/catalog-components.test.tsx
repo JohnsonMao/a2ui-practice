@@ -276,9 +276,9 @@ describe('CustomSandbox', () => {
 
 // ----- Catalog registration -----
 describe('customCatalog', () => {
-  it('contains all 19 components including Sandbox', async () => {
+  it('contains all 25 components including Sandbox', async () => {
     const { customCatalog } = await import('../../index')
     expect(customCatalog.components.has('Sandbox')).toBe(true)
-    expect(customCatalog.components.size).toBe(20)
+    expect(customCatalog.components.size).toBe(25)
   })
 })

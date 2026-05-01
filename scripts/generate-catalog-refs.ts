@@ -1,26 +1,61 @@
 /**
  * generate-catalog-refs.ts
  *
- * Imports all catalog API objects from src/catalog/api-registry.ts
- * and writes one Markdown reference file per component to
- * skills/generate-ui/references/<ComponentName>.md.
+ * Scans all *.skill.ts files in src/catalog/components/, executes each as a
+ * side effect to populate the skill registry, then writes one Markdown
+ * reference file per component to skills/generate-ui/references/<ComponentName>.md.
  *
  * Run via: tsx scripts/generate-catalog-refs.ts
  */
 
-import { writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs'
+import { writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import type { ZodTypeAny } from 'zod'
+
+// ---------------------------------------------------------------------------
+// Typed accessor for Zod internals — avoids `any` while inspecting _def
+// ---------------------------------------------------------------------------
+
+type ZodInternalDef = {
+  typeName?: string
+  description?: string
+  innerType?: ZodTypeAny
+  defaultValue?: (() => unknown) | unknown
+  values?: string[]
+  value?: unknown
+  options?: ZodTypeAny[]
+}
+
+type ZodInspectable = {
+  description?: string
+  _def: ZodInternalDef
+  shape?: Record<string, ZodTypeAny>
+}
+
+function inspect(zodType: ZodTypeAny): ZodInspectable {
+  return zodType as unknown as ZodInspectable
+}
 
 const __dir = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dir, '..')
 
 // ---------------------------------------------------------------------------
-// Load all APIs from the registry (single source of truth)
+// Scan *.skill.ts files and execute them to populate the skill registry
 // ---------------------------------------------------------------------------
 
-const allApis = await import('../src/catalog/api-registry.js')
+const componentsDir = resolve(root, 'src/catalog/components')
+const skillFiles = readdirSync(componentsDir)
+  .filter((f) => f.endsWith('.skill.ts'))
+  .sort()
+  .map((f) => pathToFileURL(resolve(componentsDir, f)).href)
+
+for (const fileUrl of skillFiles) {
+  await import(fileUrl)
+}
+
+const { getRegistry } = await import('../src/catalog/skill.js')
+const allSkills = getRegistry()
 
 // ---------------------------------------------------------------------------
 // Zod introspection helpers
@@ -36,9 +71,10 @@ function cleanDescription(raw: string | undefined): string {
 
 /** Get description from a Zod field, traversing wrappers. */
 function getDescription(zodType: ZodTypeAny): string {
-  const raw = (zodType as any).description ?? (zodType as any)._def?.description
+  const insp = inspect(zodType)
+  const raw = insp.description ?? insp._def.description
   if (raw) return cleanDescription(raw)
-  if ((zodType as any)._def?.innerType) return getDescription((zodType as any)._def.innerType)
+  if (insp._def.innerType) return getDescription(insp._def.innerType)
   return '—'
 }
 
@@ -46,23 +82,24 @@ type ZodResolved = { type: string; defaultVal: string; required: boolean }
 
 /** Resolve Zod type to { type, defaultVal, required }. */
 function resolveZodType(zodType: ZodTypeAny): ZodResolved {
-  const tn = (zodType as any)._def?.typeName
+  const tn = inspect(zodType)._def.typeName
 
   switch (tn) {
     case 'ZodOptional': {
-      const inner = resolveZodType((zodType as any)._def.innerType)
+      const inner = resolveZodType(inspect(zodType)._def.innerType!)
       return { ...inner, required: false }
     }
     case 'ZodNullable': {
-      const inner = resolveZodType((zodType as any)._def.innerType)
+      const inner = resolveZodType(inspect(zodType)._def.innerType!)
       return { ...inner, required: false }
     }
     case 'ZodDefault': {
-      const inner = resolveZodType((zodType as any)._def.innerType)
-      const raw =
-        typeof (zodType as any)._def.defaultValue === 'function'
-          ? (zodType as any)._def.defaultValue()
-          : (zodType as any)._def.defaultValue
+      const insp = inspect(zodType)
+      const inner = resolveZodType(insp._def.innerType!)
+      const defaultValue = insp._def.defaultValue
+      const raw = typeof defaultValue === 'function'
+        ? (defaultValue as () => unknown)()
+        : defaultValue
       return { ...inner, defaultVal: JSON.stringify(raw), required: false }
     }
     case 'ZodString':
@@ -72,25 +109,25 @@ function resolveZodType(zodType: ZodTypeAny): ZodResolved {
     case 'ZodBoolean':
       return { type: 'boolean', defaultVal: '—', required: true }
     case 'ZodEnum': {
-      const values = (zodType as any)._def.values.map((v: string) => `"${v}"`).join(' | ')
+      const values = (inspect(zodType)._def.values ?? []).map((v) => `"${v}"`).join(' | ')
       return { type: values, defaultVal: '—', required: true }
     }
     case 'ZodLiteral':
-      return { type: `"${(zodType as any)._def.value}"`, defaultVal: '—', required: true }
+      return { type: `"${String(inspect(zodType)._def.value)}"`, defaultVal: '—', required: true }
     case 'ZodObject':
       return { type: 'object', defaultVal: '—', required: true }
     case 'ZodArray':
       return { type: 'array', defaultVal: '—', required: true }
     case 'ZodUnion': {
-      const options: ZodTypeAny[] = (zodType as any)._def.options
+      const options: ZodTypeAny[] = inspect(zodType)._def.options ?? []
       const firstPrimitive = options.find((o) =>
-        ['ZodString', 'ZodNumber', 'ZodBoolean'].includes((o as any)._def?.typeName),
+        ['ZodString', 'ZodNumber', 'ZodBoolean'].includes(inspect(o)._def.typeName ?? ''),
       )
       if (firstPrimitive) {
         const base = resolveZodType(firstPrimitive)
         return { ...base, type: `${base.type} | expression` }
       }
-      const allObjects = options.every((o) => (o as any)._def?.typeName === 'ZodObject')
+      const allObjects = options.every((o) => inspect(o)._def.typeName === 'ZodObject')
       if (allObjects) return { type: 'object', defaultVal: '—', required: true }
       const types = [...new Set(options.map((o) => resolveZodType(o).type))].join(' | ')
       return { type: types, defaultVal: '—', required: true }
@@ -104,10 +141,11 @@ type PropEntry = { name: string; type: string; description: string; defaultVal: 
 
 /** Extract all props from a Zod object schema. */
 function extractProps(schema: ZodTypeAny): PropEntry[] {
-  const shape = (schema as any).shape ?? {}
+  const shape = inspect(schema).shape
+  if (!shape) return []
   return Object.entries(shape).map(([propName, zodType]) => {
-    const description = getDescription(zodType as ZodTypeAny)
-    const { type, defaultVal, required } = resolveZodType(zodType as ZodTypeAny)
+    const description = getDescription(zodType)
+    const { type, defaultVal, required } = resolveZodType(zodType)
     return { name: propName, type, description, defaultVal, required }
   })
 }
@@ -144,7 +182,12 @@ function exampleValue(propName: string, type: string): unknown {
 // Markdown generation
 // ---------------------------------------------------------------------------
 
-function generateMarkdown(name: string, schema: ZodTypeAny): string {
+function generateMarkdown(
+  name: string,
+  schema: ZodTypeAny,
+  exampleFn?: () => Record<string, unknown>,
+  notes?: string,
+): string {
   const props = extractProps(schema)
 
   const rows = props.map((p) => {
@@ -160,21 +203,25 @@ function generateMarkdown(name: string, schema: ZodTypeAny): string {
         rows.join('\n')
       : '_No props_'
 
-  const requiredProps = props.filter((p) => p.required && !EXAMPLE_SKIP_PROPS.has(p.name))
   const optionalProps = props.filter((p) => !p.required)
 
-  const exampleObj: Record<string, unknown> = {
-    id: `my-${name.toLowerCase()}`,
-    component: name,
-  }
-  for (const p of requiredProps) {
-    exampleObj[p.name] = exampleValue(p.name, p.type)
+  let exampleObj: Record<string, unknown>
+  if (exampleFn) {
+    exampleObj = exampleFn()
+  } else {
+    const requiredProps = props.filter((p) => p.required && !EXAMPLE_SKIP_PROPS.has(p.name))
+    exampleObj = { id: `my-${name.toLowerCase()}`, component: name }
+    for (const p of requiredProps) {
+      exampleObj[p.name] = exampleValue(p.name, p.type)
+    }
   }
 
   const optionalNote =
     optionalProps.length > 0
       ? `\n**Optional props:** ${optionalProps.map((p) => `\`${p.name}\``).join(', ')}`
       : ''
+
+  const notesSection = notes ? `\n**Notes:** ${notes}\n` : ''
 
   return `# ${name}
 
@@ -187,7 +234,7 @@ ${table}
 \`\`\`json
 ${JSON.stringify(exampleObj, null, 2)}
 \`\`\`
-${optionalNote}
+${optionalNote}${notesSection}
 `
 }
 
@@ -203,8 +250,8 @@ if (existsSync(outputDir)) {
 mkdirSync(outputDir, { recursive: true })
 
 let count = 0
-for (const api of Object.values(allApis) as Array<{ name: string; schema: ZodTypeAny }>) {
-  const markdown = generateMarkdown(api.name, api.schema)
+for (const { api, example, notes } of allSkills) {
+  const markdown = generateMarkdown(api.name, api.schema as ZodTypeAny, example, notes)
   writeFileSync(join(outputDir, `${api.name}.md`), markdown, 'utf-8')
   console.log(`  ✓ ${api.name}.md`)
   count++
