@@ -26,3 +26,7 @@ dist-ssr
 # Spectra app data
 .spectra/
 openspec/.vector-search.db*
+
+skills
+.agents/skills/add-to-catalog
+.agents/skills/generate-ui
