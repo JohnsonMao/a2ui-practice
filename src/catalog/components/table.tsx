@@ -11,14 +11,16 @@ import {
   TableRow,
 } from '@/components/ui/table'
 
+const CellSchema = z.union([z.string(), z.object({ id: z.string() })])
+
 export const TableApi = {
   name: 'Table',
   schema: z.object({
     columns: z.array(z.string()).describe('Column header labels, in display order.'),
     rows: z
-      .array(z.array(z.string()))
+      .array(z.array(CellSchema))
       .describe(
-        'Rows of data. Each row is an array of string cell values aligned to the columns order.'
+        'Rows of data. Each cell is either a string or a component reference { id: string }. String cells render as text; component ref cells render the referenced A2UI component.'
       ),
     caption: z
       .string()
@@ -27,9 +29,19 @@ export const TableApi = {
   }).strict(),
 } satisfies ComponentApi
 
-export const TableImpl = createComponentImplementation(TableApi, ({ props }) => {
+type Cell = z.infer<typeof CellSchema>
+
+export const TableImpl = createComponentImplementation(TableApi, ({ props, buildChild }) => {
   const columns = Array.isArray(props.columns) ? (props.columns as string[]) : []
-  const rows = Array.isArray(props.rows) ? (props.rows as string[][]) : []
+  const rows = Array.isArray(props.rows) ? (props.rows as Cell[][]) : []
+
+  const renderCell = (cell: Cell | undefined) => {
+    if (cell == null) return ''
+    if (typeof cell === 'object' && 'id' in cell) {
+      return buildChild(cell.id) ?? null
+    }
+    return String(cell)
+  }
 
   return (
     <Table>
@@ -45,7 +57,7 @@ export const TableImpl = createComponentImplementation(TableApi, ({ props }) => 
         {rows.map((row, i) => (
           <TableRow key={i}>
             {columns.map((_, j) => (
-              <TableCell key={j}>{row[j] ?? ''}</TableCell>
+              <TableCell key={j}>{renderCell(row[j])}</TableCell>
             ))}
           </TableRow>
         ))}

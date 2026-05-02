@@ -47,7 +47,9 @@
             { "id": "divider-chart" },
             { "id": "user-card-sandbox" },
             { "id": "divider-chart2" },
-            { "id": "chart-sandbox" }
+            { "id": "chart-sandbox" },
+            { "id": "divider-table" },
+            { "id": "activity-card" }
           ]
         },
 
@@ -454,6 +456,47 @@
           "id": "divider-chart2",
           "component": "Divider"
         },
+        {
+          "id": "divider-table",
+          "component": "Divider"
+        },
+        {
+          "id": "activity-card",
+          "component": "Card",
+          "child": "activity-content"
+        },
+        {
+          "id": "activity-content",
+          "component": "Column",
+          "children": [
+            { "id": "activity-title" },
+            { "id": "activity-table" }
+          ]
+        },
+        {
+          "id": "activity-title",
+          "component": "Text",
+          "text": "近期活動記錄",
+          "variant": "h4"
+        },
+        {
+          "id": "activity-table",
+          "component": "Table",
+          "columns": ["活動", "日期", "狀態", "操作"],
+          "rows": [
+            ["更新個人資料", "2026-04-28", "已完成", { "id": "act-btn-1" }],
+            ["修改通知設定", "2026-04-25", "已完成", { "id": "act-btn-2" }],
+            ["上傳大頭照",   "2026-04-20", "待審核", { "id": "act-btn-3" }]
+          ],
+          "caption": "顯示最近 3 筆活動"
+        },
+        { "id": "act-btn-1-text", "component": "Text", "text": "查看" },
+        { "id": "act-btn-1", "component": "Button", "variant": "borderless", "child": "act-btn-1-text" },
+        { "id": "act-btn-2-text", "component": "Text", "text": "查看" },
+        { "id": "act-btn-2", "component": "Button", "variant": "borderless", "child": "act-btn-2-text" },
+        { "id": "act-btn-3-text", "component": "Text", "text": "查看" },
+        { "id": "act-btn-3", "component": "Button", "variant": "borderless", "child": "act-btn-3-text" },
+
         {
           "id": "chart-sandbox",
           "component": "Sandbox",

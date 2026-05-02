@@ -8,32 +8,32 @@ TBD - created by syncing change 'custom-shadcn-catalog'. Update Purpose after ar
 
 ### Requirement: Provide shadcn-based component catalog
 
-The app SHALL provide a `customCatalog` instance (from `src/catalog/index.ts`) that implements all 19 a2ui v0.9 components using shadcn/ui components. The catalog SHALL have id `"custom"`.
+The app SHALL provide a `customCatalog` instance (from `src/catalog/index.ts`) that implements all 21 a2ui v0.9 components using shadcn/ui components. The catalog SHALL have id `"custom"`.
+
+The `Table` component within `customCatalog` SHALL accept cell values as either plain strings or component reference objects (`{ "id": string }`), rendering component refs via `buildChild`.
 
 #### Scenario: All standard components available
 
 - **WHEN** a `createSurface` message with `catalogId: "custom"` is processed
-- **THEN** the `MessageProcessor` SHALL resolve all 19 component types (`Text`, `Image`, `Icon`, `Video`, `AudioPlayer`, `Row`, `Column`, `List`, `Card`, `Tabs`, `Modal`, `Divider`, `Button`, `TextField`, `CheckBox`, `ChoicePicker`, `Slider`, `DateTimeInput`, `Sandbox`) using `customCatalog` implementations
+- **THEN** the `MessageProcessor` SHALL resolve all 21 component types (`Text`, `Image`, `Icon`, `Video`, `AudioPlayer`, `Row`, `Column`, `List`, `Card`, `Tabs`, `Modal`, `Divider`, `Button`, `TextField`, `CheckBox`, `ChoicePicker`, `Slider`, `DateTimeInput`, `Sandbox`, `Table`, `DatePicker`) using `customCatalog` implementations
 
 #### Scenario: shadcn design tokens applied
 
 - **WHEN** any non-Sandbox component from `customCatalog` is rendered
 - **THEN** the component SHALL use shadcn/ui CSS variable design tokens (`--background`, `--foreground`, `--primary`, etc.) rather than a2ui built-in styles
 
+#### Scenario: Table cell component ref renders child component
+
+- **WHEN** a `Table` component row contains a cell value `{ "id": "<component-id>" }`
+- **THEN** the Table cell SHALL render the resolved A2UI component in place of a text value
+
 
 <!-- @trace
-source: sandbox-catalog-component
-updated: 2026-04-28
+source: table-cell-component-ref
+updated: 2026-05-02
 code:
-  - skills/generate-ui/scripts/assets/index-Bdw4MtAi.css
+  - src/catalog/components/table.tsx
   - public/ui.json
-  - skills/generate-ui/scripts/index.html
-  - skills/generate-ui/scripts/assets/index-BYmVytfX.js
-  - skills/generate-ui/references/CheckBox.md
-  - skills/generate-ui/scripts/ui.json
-  - src/catalog/components/sandbox.tsx
-  - skills/generate-ui/scripts/assets/index-BxbJP-hD.js
-  - skills/generate-ui/SKILL.md
 tests:
   - src/catalog/components/__tests__/catalog-components.test.tsx
 -->

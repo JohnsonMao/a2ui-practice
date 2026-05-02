@@ -274,6 +274,60 @@ describe('CustomSandbox', () => {
   })
 })
 
+// ----- Table -----
+describe('CustomTable', () => {
+  it('renders string cell as text (Scenario: String cell renders as text)', async () => {
+    const { TableImpl } = await import('../table')
+    const ctx = createTestContext({
+      columns: ['Name', 'Role'],
+      rows: [['Alice', 'Engineer']],
+    })
+    const { getByText } = render(<TableImpl.render context={ctx} buildChild={noBuildChild} />)
+    expect(getByText('Alice')).toBeTruthy()
+    expect(getByText('Engineer')).toBeTruthy()
+  })
+
+  it('renders component ref cell via buildChild (Scenario: Component ref cell renders the referenced component)', async () => {
+    const { TableImpl } = await import('../table')
+    const ctx = createTestContext({
+      columns: ['Name', 'Actions'],
+      rows: [['Alice', { id: 'alice-btn' }]],
+    })
+    const childNode = <button data-testid="alice-btn">Click</button>
+    const buildChild = (id: string) => id === 'alice-btn' ? childNode : null
+    const { getByTestId } = render(<TableImpl.render context={ctx} buildChild={buildChild} />)
+    expect(getByTestId('alice-btn')).toBeTruthy()
+  })
+
+  it('renders empty cell when component ref is missing (Scenario: Missing component ref renders empty cell)', async () => {
+    const { TableImpl } = await import('../table')
+    const ctx = createTestContext({
+      columns: ['Name', 'Actions'],
+      rows: [['Alice', { id: 'nonexistent' }]],
+    })
+    const { container } = render(<TableImpl.render context={ctx} buildChild={noBuildChild} />)
+    const cells = container.querySelectorAll('td')
+    expect(cells.length).toBe(2)
+    expect(cells[1].textContent).toBe('')
+  })
+
+  it('handles mixed string and component ref cells in same row (Scenario: Mixed row)', async () => {
+    const { TableImpl } = await import('../table')
+    const ctx = createTestContext({
+      columns: ['Name', 'Status', 'Actions'],
+      rows: [['Alice', 'Active', { id: 'row-btn' }]],
+    })
+    const buildChild = (id: string) =>
+      id === 'row-btn' ? <span data-testid="row-btn">Go</span> : null
+    const { getByText, getByTestId } = render(
+      <TableImpl.render context={ctx} buildChild={buildChild} />
+    )
+    expect(getByText('Alice')).toBeTruthy()
+    expect(getByText('Active')).toBeTruthy()
+    expect(getByTestId('row-btn')).toBeTruthy()
+  })
+})
+
 // ----- Catalog registration -----
 describe('customCatalog', () => {
   it('contains all 25 components including Sandbox', async () => {
