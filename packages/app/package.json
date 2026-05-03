@@ -10,7 +10,7 @@
     "test": "vitest run",
     "typecheck": "tsc -b --noEmit",
     "lint": "eslint .",
-    "generate:refs": "a2ui generate-refs --dir ./src/catalog --out ../../skills/generate-ui/references"
+    "generate:refs": "node ../../packages/cli/dist/cli.cjs generate-refs --dir ./src/catalog --out ../../skills/generate-ui/references"
   },
   "dependencies": {
     "@a2ui/react": "^0.9.1",

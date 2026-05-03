@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 import { Command } from 'commander'
-import { addServeCommand } from './commands/serve.js'
-import { addGenerateRefsCommand } from './commands/generate-refs.js'
+import { addServeCommand } from './commands/serve'
+import { addGenerateRefsCommand } from './commands/generate-refs'
+import { addReadCommand, addSetCommand, addUpdateCommand, addOpenCommand } from './commands/ui-json'
 
 const program = new Command()
 
@@ -12,6 +13,10 @@ program
 
 addServeCommand(program)
 addGenerateRefsCommand(program)
+addReadCommand(program)
+addSetCommand(program)
+addUpdateCommand(program)
+addOpenCommand(program)
 
 program.parseAsync(process.argv).then(() => {
   if (process.argv.length < 3) {

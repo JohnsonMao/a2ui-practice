@@ -1,9 +1,9 @@
-import { writeFileSync, mkdirSync, rmSync, existsSync, readdirSync } from 'node:fs'
+import { writeFileSync, mkdirSync, rmSync, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { createJiti } from 'jiti'
 import type { Command } from 'commander'
-import type { ZodTypeAny } from 'zod'
+import type { ZodType } from 'zod'
 
 // ---------------------------------------------------------------------------
 // Typed accessor for Zod internals
@@ -12,26 +12,26 @@ import type { ZodTypeAny } from 'zod'
 type ZodInternalDef = {
   typeName?: string
   description?: string
-  innerType?: ZodTypeAny
+  innerType?: ZodType
   defaultValue?: (() => unknown) | unknown
   values?: string[]
   value?: unknown
-  options?: ZodTypeAny[]
+  options?: ZodType[]
 }
 
 type ZodInspectable = {
   description?: string
   _def: ZodInternalDef
-  shape?: Record<string, ZodTypeAny>
+  shape?: Record<string, ZodType>
 }
 
-function inspect(zodType: ZodTypeAny): ZodInspectable {
+function inspect(zodType: ZodType): ZodInspectable {
   return zodType as unknown as ZodInspectable
 }
 
 type ZodResolved = { type: string; defaultVal: string; required: boolean }
 
-function resolveZodType(zodType: ZodTypeAny): ZodResolved {
+function resolveZodType(zodType: ZodType): ZodResolved {
   const tn = inspect(zodType)._def.typeName
 
   switch (tn) {
@@ -69,7 +69,7 @@ function resolveZodType(zodType: ZodTypeAny): ZodResolved {
     case 'ZodArray':
       return { type: 'array', defaultVal: '—', required: true }
     case 'ZodUnion': {
-      const options: ZodTypeAny[] = inspect(zodType)._def.options ?? []
+      const options: ZodType[] = inspect(zodType)._def.options ?? []
       const firstPrimitive = options.find((o) =>
         ['ZodString', 'ZodNumber', 'ZodBoolean'].includes(inspect(o)._def.typeName ?? ''),
       )
@@ -94,7 +94,7 @@ function cleanDescription(raw: string | undefined): string {
   return cleaned || '—'
 }
 
-function getDescription(zodType: ZodTypeAny): string {
+function getDescription(zodType: ZodType): string {
   const insp = inspect(zodType)
   const raw = insp.description ?? insp._def.description
   if (raw) return cleanDescription(raw)
@@ -104,7 +104,7 @@ function getDescription(zodType: ZodTypeAny): string {
 
 type PropEntry = { name: string; type: string; description: string; defaultVal: string; required: boolean }
 
-function extractProps(schema: ZodTypeAny): PropEntry[] {
+function extractProps(schema: ZodType): PropEntry[] {
   const shape = inspect(schema).shape
   if (!shape) return []
   return Object.entries(shape).map(([propName, zodType]) => {
@@ -142,7 +142,7 @@ function exampleValue(propName: string, type: string): unknown {
 
 function generateMarkdown(
   name: string,
-  schema: ZodTypeAny,
+  schema: ZodType,
   exampleFn?: () => Record<string, unknown>,
   notes?: string,
 ): string {
@@ -216,7 +216,10 @@ export function addGenerateRefsCommand(program: Command): void {
 
       // Dynamic import each skill file as a side effect to populate the registry
       // Use jiti to support TypeScript skill files without pre-compilation
-      const jiti = createJiti(pathToFileURL(process.cwd()).href)
+      // jsx: true is required because skill files may import .tsx catalog components
+      // alias resolves tsconfig path aliases (e.g. '@' -> 'src/') for the scanned project
+      const alias = resolveTsconfigAlias(scanDir)
+      const jiti = createJiti(pathToFileURL(process.cwd()).href, { jsx: true, alias })
       for (const filePath of skillFiles) {
         await jiti.import(filePath)
       }
@@ -238,7 +241,7 @@ export function addGenerateRefsCommand(program: Command): void {
 
       let count = 0
       for (const { api, example, notes } of allSkills) {
-        const markdown = generateMarkdown(api.name, api.schema as ZodTypeAny, example, notes)
+        const markdown = generateMarkdown(api.name, api.schema as ZodType, example, notes)
         writeFileSync(join(outputDir, `${api.name}.md`), markdown, 'utf-8')
         console.log(`  ✓ ${api.name}.md`)
         count++
@@ -246,6 +249,34 @@ export function addGenerateRefsCommand(program: Command): void {
 
       console.log(`\nGenerated ${count} component reference file(s) → ${outputDir}`)
     })
+}
+
+function resolveTsconfigAlias(scanDir: string): Record<string, string> {
+  let dir = scanDir
+  while (true) {
+    for (const name of ['tsconfig.app.json', 'tsconfig.json']) {
+      const tscPath = join(dir, name)
+      if (existsSync(tscPath)) {
+        try {
+          const tsconfig = JSON.parse(readFileSync(tscPath, 'utf-8'))
+          const paths = tsconfig.compilerOptions?.paths as Record<string, string[]> | undefined
+          if (paths) {
+            const aliases: Record<string, string> = {}
+            for (const [pattern, targets] of Object.entries(paths)) {
+              const key = pattern.replace('/*', '')
+              const target = targets[0].replace('/*', '')
+              aliases[key] = resolve(dir, target)
+            }
+            return aliases
+          }
+        } catch { /* skip malformed */ }
+      }
+    }
+    const parent = resolve(dir, '..')
+    if (parent === dir) break
+    dir = parent
+  }
+  return {}
 }
 
 function findSkillFiles(dir: string): string[] {

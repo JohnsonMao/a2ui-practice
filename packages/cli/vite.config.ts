@@ -7,7 +7,7 @@ const nodeBuiltins = [
   'node:http', 'node:https', 'node:fs', 'node:path', 'node:child_process', 'node:url',
   'node:os', 'node:crypto', 'node:stream', 'node:events', 'node:util', 'node:buffer',
   'node:assert', 'node:net', 'node:tls', 'node:dns', 'node:readline', 'node:zlib',
-  'node:process',
+  'node:process', 'node:tty', 'node:perf_hooks', 'node:vm', 'node:module',
 ]
 
 export default defineConfig({
@@ -20,7 +20,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
-      external: [...nodeBuiltins, 'jiti', '@a2ui/sdk'],
+      external: [...nodeBuiltins, '@a2ui/sdk'],
       output: {
         entryFileNames: 'cli.cjs',
         chunkFileNames: 'chunks/[name]-[hash].cjs',
@@ -28,6 +28,5 @@ export default defineConfig({
     },
     target: 'node18',
     minify: false,
-    ssr: true,
   },
 })

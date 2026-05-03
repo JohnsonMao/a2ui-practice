@@ -10,7 +10,9 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "typecheck": "turbo typecheck",
-    "sync:skill": "for d in skills/*/; do name=$(basename \"$d\"); mkdir -p \".agents/skills/$name\" && cp -r \"$d\". \".agents/skills/$name/\"; done"
+    "sync:skill": "for d in skills/*/; do name=$(basename \"$d\"); mkdir -p \".agents/skills/$name\" && cp -r \"$d\". \".agents/skills/$name/\"; done",
+    "sync:scripts": "mkdir -p skills/generate-ui/scripts && rsync -a packages/app/dist/. skills/generate-ui/scripts/ && cp packages/cli/dist/cli.cjs skills/generate-ui/scripts/cli.cjs",
+    "package:skill": "pnpm build && pnpm sync:scripts && pnpm --filter app generate:refs && pnpm sync:skill"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
