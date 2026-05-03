@@ -1,0 +1,18 @@
+{
+  "name": "example",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Demonstrates how any project can register its own UI components with @a2ui/sdk",
+  "scripts": {
+    "generate-refs": "a2ui generate-refs --dir ./src --out ./references"
+  },
+  "dependencies": {
+    "@a2ui/sdk": "workspace:*",
+    "@a2ui/web_core": "^0.9.2"
+  },
+  "devDependencies": {
+    "@a2ui/cli": "workspace:*",
+    "zod": "^3.24.2",
+    "typescript": "~6.0.2"
+  }
+}

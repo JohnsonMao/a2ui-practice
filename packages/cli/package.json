@@ -1,0 +1,24 @@
+{
+  "name": "@a2ui/cli",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "a2ui": "./dist/cli.cjs"
+  },
+  "scripts": {
+    "build": "vite build --config vite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@a2ui/sdk": "workspace:*",
+    "commander": "^12.1.0",
+    "jiti": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.4",
+    "vitest": "^4.1.4"
+  }
+}

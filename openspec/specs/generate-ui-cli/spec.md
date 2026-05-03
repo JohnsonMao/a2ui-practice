@@ -8,64 +8,226 @@ The `generate-ui-cli` capability provides a zero-dependency CLI (`cli.cjs`) for 
 
 ### Requirement: CLI provides serve command
 
-The CLI SHALL start a zero-dependency HTTP static server on port 5173 serving the pre-built A2UI React app and the skill's `ui.json` file when the `serve` subcommand is invoked. After the server starts, the CLI SHALL open `http://localhost:5173` in the default browser automatically.
+~~The CLI SHALL start a zero-dependency HTTP static server on port 5173 serving the pre-built A2UI React app and the skill's `ui.json` file when the `serve` subcommand is invoked via `node cli.cjs serve`.~~
+
+The CLI SHALL start a zero-dependency HTTP static server serving the pre-built A2UI React app when the `serve` subcommand is invoked via `a2ui serve`. The server SHALL support a `--port` flag (default 5173). After the server starts, the CLI SHALL open `http://localhost:<port>` in the default browser automatically.
 
 #### Scenario: Serve starts successfully
 
-- **WHEN** `node cli.cjs serve` is executed and port 5173 is available
-- **THEN** the HTTP server SHALL listen on port 5173
-- **THEN** the browser SHALL open `http://localhost:5173`
+- **WHEN** `a2ui serve` is executed and the specified port is available
+- **THEN** the HTTP server SHALL listen on the specified port (default 5173)
+- **THEN** the browser SHALL open `http://localhost:<port>`
 - **THEN** a confirmation message SHALL be printed to stdout
 
 #### Scenario: Port already in use
 
-- **WHEN** `node cli.cjs serve` is executed and port 5173 is already bound
-- **THEN** the CLI SHALL print a clear error message indicating port conflict
-- **THEN** the CLI SHALL suggest using `cli.cjs open` to open the browser instead
+- **WHEN** `a2ui serve` is executed and the port is already bound
+- **THEN** the CLI SHALL print a clear error message indicating port conflict with suggestion to use `--port`
 - **THEN** the process SHALL exit with a non-zero exit code
 
 
 <!-- @trace
-source: generate-ui-cli
-updated: 2026-04-25
+source: monorepo-restructure
+updated: 2026-05-03
 code:
-  - skills/generate-ui/scripts/cli.cjs
-  - skills/generate-ui/scripts/serve.cjs
-  - vite.cli.config.ts
-  - skills/generate-ui/SKILL.md
-  - skills/generate-ui/scripts/assets/index-0rLisBmW.css
+  - src/catalog/components/choice-picker.tsx
+  - packages/app/src/catalog/components/typography.tsx
+  - packages/app/src/catalog/components/text-field.tsx
+  - packages/app/src/catalog/components/choice-picker.skill.ts
+  - src/catalog/components/slider.skill.ts
+  - packages/app/src/catalog/components/list.tsx
+  - packages/app/src/catalog/components/divider.tsx
+  - public/ui.json
+  - src/catalog/components/audio-player.tsx
+  - packages/app/src/catalog/components/table.tsx
+  - src/components/ui/select.tsx
+  - src/main.tsx
+  - example/src/button.skill.ts
+  - src/catalog/components/audio-player.skill.ts
+  - packages/app/src/catalog/components/divider.skill.ts
+  - packages/app/src/index.css
+  - src/catalog/components/checkbox.tsx
+  - packages/app/src/components/ui/separator.tsx
+  - packages/app/src/catalog/components/choice-picker.tsx
+  - packages/app/src/hooks/useJsonPolling.ts
+  - src/catalog/components/sandbox.skill.ts
+  - packages/sdk/src/index.ts
+  - src/catalog/components/text-field.tsx
+  - packages/app/src/catalog/components/typography.skill.ts
+  - src/components/ui/input.tsx
+  - src/catalog/components/sandbox.tsx
+  - packages/app/src/catalog/components/dialog.skill.ts
+  - packages/cli/src/commands/generate-refs.ts
+  - packages/app/src/components/ui/popover.tsx
+  - src/catalog/components/date-time-input.tsx
+  - packages/app/src/catalog/components/box.tsx
+  - src/catalog/components/button.tsx
+  - src/components/ui/checkbox.tsx
+  - packages/app/src/catalog/components/modal.tsx
+  - packages/app/src/catalog/components/button.skill.ts
+  - packages/app/src/catalog/components/table.skill.ts
+  - packages/cli/src/commands/serve.ts
+  - src/components/ui/typography.tsx
+  - packages/app/src/catalog/components/row.tsx
+  - packages/app/src/catalog/components/slider.tsx
+  - packages/app/src/catalog/components/image.tsx
+  - packages/app/src/lib/utils.ts
+  - src/catalog/components/column.tsx
+  - src/components/ui/calendar.tsx
+  - index.html
+  - packages/app/src/catalog/components/sandbox.tsx
+  - packages/sdk/vitest.config.ts
+  - packages/app/src/catalog/components/dialog.tsx
+  - packages/app/src/catalog/components/text.tsx
+  - packages/app/src/catalog/index.ts
+  - packages/cli/package.json
+  - src/catalog/components/dialog.skill.ts
+  - packages/app/src/catalog/components/audio-player.tsx
+  - src/catalog/skill.ts
+  - src/catalog/components/table.skill.ts
+  - packages/app/src/catalog/components/row.skill.ts
+  - packages/app/src/catalog/components/tabs.tsx
+  - src/catalog/components/date-time-input.skill.ts
+  - src/components/ui/card.tsx
+  - src/catalog/components/date-picker.tsx
+  - packages/app/public/icons.svg
+  - packages/app/src/catalog/components/audio-player.skill.ts
+  - packages/app/src/vite-env.d.ts
+  - src/components/ui/dialog.tsx
+  - packages/cli/tsconfig.json
+  - packages/app/src/catalog/components/video.tsx
+  - src/catalog/components/divider.skill.ts
+  - src/catalog/components/modal.skill.ts
+  - packages/app/src/catalog/components/list.skill.ts
+  - packages/app/src/catalog/components/column.tsx
+  - packages/app/src/App.tsx
+  - packages/app/tsconfig.node.json
+  - src/catalog/components/table.tsx
+  - pnpm-workspace.yaml
+  - tsconfig.app.json
+  - packages/app/components.json
+  - src/catalog/components/icon.skill.ts
+  - packages/app/vite.config.ts
+  - src/catalog/index.ts
+  - packages/app/src/components/ui/dialog.tsx
+  - packages/app/src/catalog/components/badge.skill.ts
+  - packages/app/src/components/ui/calendar.tsx
+  - packages/app/src/catalog/components/image.skill.ts
+  - packages/app/src/components/ui/typography.tsx
+  - packages/app/src/catalog/components/video.skill.ts
+  - src/catalog/components/choice-picker.skill.ts
+  - src/catalog/components/list.skill.ts
+  - src/catalog/components/list.tsx
+  - src/components/ui/slider.tsx
+  - vite.config.ts
+  - src/lib/utils.ts
+  - packages/app/src/catalog/components/text.skill.ts
+  - packages/app/src/catalog/components/slider.skill.ts
+  - components.json
   - package.json
-  - skills/generate-ui/scripts/assets/index-Bznp7iK3.js
-  - cli.ts
-tests:
-  - skills/generate-ui/scripts/__tests__/cli.test.mjs
--->
-
----
-### Requirement: CLI provides open command
-
-The CLI SHALL open `http://localhost:5173` in the default macOS browser when the `open` subcommand is invoked, without starting a server.
-
-#### Scenario: Open browser
-
-- **WHEN** `node cli.cjs open` is executed
-- **THEN** the system SHALL open `http://localhost:5173` in the default browser via the `open` command
-
-
-<!-- @trace
-source: generate-ui-cli
-updated: 2026-04-25
-code:
-  - skills/generate-ui/scripts/cli.cjs
-  - skills/generate-ui/scripts/serve.cjs
+  - packages/app/src/catalog/components/checkbox.skill.ts
+  - packages/app/src/catalog/components/icon.tsx
+  - packages/app/src/components/ui/button.tsx
+  - packages/app/src/catalog/components/card.skill.ts
+  - packages/app/src/catalog/components/modal.skill.ts
+  - src/components/ui/table.tsx
+  - src/hooks/useJsonPolling.ts
+  - packages/app/src/catalog/components/date-time-input.tsx
+  - tsconfig.json
+  - example/tsconfig.json
+  - packages/app/src/catalog/components/badge.tsx
+  - src/catalog/components/card.tsx
+  - src/catalog/components/icon.tsx
+  - packages/app/src/catalog/components/date-picker.tsx
+  - packages/cli/src/index.ts
+  - packages/app/src/components/ui/checkbox.tsx
+  - packages/sdk/tsconfig.json
+  - packages/app/src/catalog/components/icon.skill.ts
+  - public/icons.svg
+  - src/catalog/components/video.skill.ts
+  - packages/app/src/catalog/components/button.tsx
+  - src/components/ui/tabs.tsx
+  - packages/app/src/components/ui/badge.tsx
+  - src/catalog/components/date-picker.skill.ts
+  - public/favicon.svg
+  - example/package.json
+  - packages/app/src/catalog/components/column.skill.ts
+  - src/catalog/components/checkbox.skill.ts
+  - src/catalog/components/column.skill.ts
+  - turbo.json
+  - packages/app/src/catalog/components/sandbox.skill.ts
+  - src/catalog/components/box.tsx
+  - src/catalog/components/text.tsx
+  - packages/app/src/components/ui/select.tsx
+  - src/components/ui/badge.tsx
+  - packages/app/src/catalog/components/tabs.skill.ts
+  - tsconfig.node.json
+  - src/components/ui/separator.tsx
+  - packages/app/src/main.tsx
+  - src/catalog/components/button.skill.ts
   - vite.cli.config.ts
-  - skills/generate-ui/SKILL.md
-  - skills/generate-ui/scripts/assets/index-0rLisBmW.css
-  - package.json
-  - skills/generate-ui/scripts/assets/index-Bznp7iK3.js
-  - cli.ts
+  - src/catalog/components/typography.tsx
+  - src/catalog/components/slider.tsx
+  - src/catalog/components/image.skill.ts
+  - packages/app/src/components/ui/input.tsx
+  - src/catalog/components/tabs.skill.ts
+  - src/catalog/components/text.skill.ts
+  - src/catalog/components/image.tsx
+  - cli/index.ts
+  - packages/app/src/components/ui/slider.tsx
+  - packages/app/src/components/ui/table.tsx
+  - packages/sdk/package.json
+  - packages/app/src/catalog/components/checkbox.tsx
+  - src/catalog/components/badge.tsx
+  - src/catalog/components/row.tsx
+  - packages/app/package.json
+  - packages/app/src/catalog/components/card.tsx
+  - src/components/ui/popover.tsx
+  - src/catalog/components/typography.skill.ts
+  - src/catalog/components/tabs.tsx
+  - packages/app/src/catalog/components/box.skill.ts
+  - packages/app/src/components/ui/tabs.tsx
+  - src/catalog/components/divider.tsx
+  - src/catalog/components/row.skill.ts
+  - packages/app/index.html
+  - packages/app/src/components/ui/date-picker.tsx
+  - src/catalog/components/badge.skill.ts
+  - src/catalog/components/card.skill.ts
+  - example/README.md
+  - packages/app/src/catalog/components/date-picker.skill.ts
+  - packages/app/src/catalog/components/text-field.skill.ts
+  - packages/app/tsconfig.json
+  - packages/cli/vite.config.ts
+  - src/catalog/components/modal.tsx
+  - src/catalog/components/text-field.skill.ts
+  - src/catalog/components/video.tsx
+  - src/components/ui/button.tsx
+  - packages/app/public/ui.json
+  - src/App.tsx
+  - src/catalog/components/dialog.tsx
+  - packages/app/tsconfig.app.json
+  - src/components/ui/date-picker.tsx
+  - packages/app/src/catalog/components/date-time-input.skill.ts
+  - packages/app/src/components/ui/card.tsx
+  - src/catalog/components/box.skill.ts
+  - src/index.css
+  - scripts/generate-catalog-refs.ts
+  - packages/app/public/favicon.svg
 tests:
-  - skills/generate-ui/scripts/__tests__/cli.test.mjs
+  - packages/app/src/test/setup.test.ts
+  - packages/app/src/catalog/components/__tests__/catalog-components.test.tsx
+  - src/test/setup.test.ts
+  - packages/app/src/App.test.tsx
+  - packages/app/src/test/setup.ts
+  - packages/app/src/hooks/useJsonPolling.test.ts
+  - src/hooks/useJsonPolling.test.ts
+  - src/test/setup.ts
+  - cli/__tests__/cli.test.mjs
+  - src/catalog/components/__tests__/catalog-components.test.tsx
+  - src/catalog/__tests__/skill.test.ts
+  - packages/sdk/src/__tests__/skill.test.ts
+  - packages/app/src/catalog/__tests__/skill.test.ts
+  - src/App.test.tsx
 -->
 
 ---
