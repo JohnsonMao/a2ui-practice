@@ -20,7 +20,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
-      external: [...nodeBuiltins, '@a2ui/sdk'],
+      external: [...nodeBuiltins, '@a2ui/sdk', 'jiti'],
       output: {
         entryFileNames: 'cli.cjs',
         chunkFileNames: 'chunks/[name]-[hash].cjs',

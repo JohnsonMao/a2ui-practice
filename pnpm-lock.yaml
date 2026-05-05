@@ -148,6 +148,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@a2ui/figma-catalog-map':
+        specifier: workspace:*
+        version: link:../figma-catalog-map
       '@a2ui/sdk':
         specifier: workspace:*
         version: link:../sdk
@@ -173,6 +176,49 @@ importers:
       zod:
         specifier: ^3.25.76
         version: 3.25.76
+
+  packages/figma-catalog-map:
+    devDependencies:
+      typescript:
+        specifier: ~6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.4
+        version: 8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)
+      vitest:
+        specifier: ^4.1.4
+        version: 4.1.5(@types/node@24.12.2)(jsdom@29.1.1(@noble/hashes@1.8.0))(msw@2.14.2(@types/node@24.12.2)(typescript@6.0.3))(vite@8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
+
+  packages/figma-plugin:
+    dependencies:
+      '@a2ui/figma-catalog-map':
+        specifier: workspace:*
+        version: link:../figma-catalog-map
+    devDependencies:
+      '@figma/plugin-typings':
+        specifier: ^1.100.5
+        version: 1.125.0
+      '@types/react':
+        specifier: ^19.1.5
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.1.5
+        version: 19.2.3(@types/react@19.2.14)
+      '@vitejs/plugin-react':
+        specifier: ^6.0.1
+        version: 6.0.1(vite@8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0))
+      react:
+        specifier: ^19.1.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.1.0
+        version: 19.2.5(react@19.2.5)
+      typescript:
+        specifier: ~6.0.2
+        version: 6.0.3
+      vite:
+        specifier: ^8.0.4
+        version: 8.0.10(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)
 
   packages/sdk:
     devDependencies:
@@ -622,6 +668,9 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@figma/plugin-typings@1.125.0':
+    resolution: {integrity: sha512-8cXB4iKyRFl+/DryImvTngkFtgnowZUeFu/dt/jSaFL04mOKhGoZE1d1Vz+sUKUdZWXibGIWexCCdFK5gH5zxg==}
 
   '@floating-ui/core@1.7.5':
     resolution: {integrity: sha512-1Ih4WTWyw0+lKyFMcBHGbb5U5FtuHJuujoyyr5zTaWS5EYMeT6Jb2AuDeftsCsEuchO+mM2ij5+q9crhydzLhQ==}
@@ -4194,6 +4243,8 @@ snapshots:
   '@exodus/bytes@1.15.0(@noble/hashes@1.8.0)':
     optionalDependencies:
       '@noble/hashes': 1.8.0
+
+  '@figma/plugin-typings@1.125.0': {}
 
   '@floating-ui/core@1.7.5':
     dependencies:

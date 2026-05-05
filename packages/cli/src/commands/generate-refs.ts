@@ -1,7 +1,6 @@
 import { writeFileSync, mkdirSync, rmSync, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { createJiti } from 'jiti'
 import type { Command } from 'commander'
 import type { ZodType } from 'zod'
 
@@ -219,6 +218,7 @@ export function addGenerateRefsCommand(program: Command): void {
       // jsx: true is required because skill files may import .tsx catalog components
       // alias resolves tsconfig path aliases (e.g. '@' -> 'src/') for the scanned project
       const alias = resolveTsconfigAlias(scanDir)
+      const { createJiti } = await import('jiti')
       const jiti = createJiti(pathToFileURL(process.cwd()).href, { jsx: true, alias })
       for (const filePath of skillFiles) {
         await jiti.import(filePath)

@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import { addServeCommand } from './commands/serve'
 import { addGenerateRefsCommand } from './commands/generate-refs'
 import { addReadCommand, addSetCommand, addUpdateCommand, addOpenCommand } from './commands/ui-json'
+import { addPullFigmaCommand } from './commands/pull-figma'
 
 const program = new Command()
 
@@ -17,6 +18,7 @@ addReadCommand(program)
 addSetCommand(program)
 addUpdateCommand(program)
 addOpenCommand(program)
+addPullFigmaCommand(program)
 
 program.parseAsync(process.argv).then(() => {
   if (process.argv.length < 3) {
