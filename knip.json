@@ -1,0 +1,14 @@
+{
+    "$schema": "https://unpkg.com/knip@6/schema.json",
+    "workspaces": {
+        ".": {
+            "entry": ["turbo.json"]
+        },
+        "packages/*": {
+            "project": ["src/**/*.{ts,tsx}"]
+        },
+        "packages/e2e": {
+            "project": ["tests/**/*.ts"]
+        }
+    }
+}

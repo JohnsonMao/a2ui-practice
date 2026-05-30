@@ -1,0 +1,27 @@
+{
+    "name": "template-workspace",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "packageManager": "pnpm@10.20.0",
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "lint": "biome check .",
+        "lint:fix": "biome check . --fix",
+        "format": "biome format --write .",
+        "knip": "knip",
+        "typecheck": "turbo run typecheck",
+        "test": "turbo run test",
+        "test:e2e": "turbo run test:e2e",
+        "coverage": "turbo run coverage",
+        "check": "pnpm format && pnpm lint:fix && pnpm knip && pnpm typecheck && pnpm test && pnpm test:e2e"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "catalog:",
+        "@types/node": "catalog:",
+        "knip": "catalog:",
+        "turbo": "catalog:",
+        "typescript": "catalog:"
+    }
+}
