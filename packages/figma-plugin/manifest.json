@@ -1,9 +1,0 @@
-{
-  "name": "A2UI Sync",
-  "id": "a2ui-sync-plugin",
-  "api": "1.0.0",
-  "main": "dist/code.js",
-  "ui": "dist/index.html",
-  "editorType": ["figma"],
-  "permissions": ["currentuser"]
-}
